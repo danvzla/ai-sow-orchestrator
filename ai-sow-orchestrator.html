@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOW Orchestrator — AgentPM</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --charcoal: #2C2C2C; --charcoal-dark: #1a1a1a; --charcoal-mid: #3d3d3d;
+    --gold: #C9A84C; --gold-light: #F5E9C8; --gold-dark: #A07830;
+    --text-primary: #1a1a1a; --text-secondary: #6b7280; --text-muted: #9ca3af;
+    --bg-primary: #ffffff; --bg-secondary: #f9fafb; --bg-tertiary: #f3f4f6;
+    --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.18);
+    --red: #A32D2D; --red-bg: #FCEBEB;
+    --amber: #854F0B; --amber-bg: #FAEEDA;
+    --green: #3B6D11; --green-bg: #EAF3DE;
+    --blue: #185FA5; --blue-bg: #E6F1FB;
+    --teal: #0F6E56; --teal-light: #E1F5EE;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --bg-primary: #1e2329; --bg-secondary: #252c35; --bg-tertiary: #2d3748;
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
+      --gold-light: #2a2010; --red-bg: #3b1515; --amber-bg: #3b2a0a;
+      --green-bg: #0d2310; --blue-bg: #0c1f35; --teal-light: #0a2e25;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg-secondary); color: var(--text-primary); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+  /* NAV */
+  nav { background: var(--charcoal-dark); border-bottom: 0.5px solid rgba(201,168,76,0.25); padding: 0 2rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-logo { width: 28px; height: 28px; background: var(--gold); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .nav-logo i { font-size: 16px; color: var(--charcoal-dark); }
+  .nav-title { font-size: 14px; font-weight: 600; color: #ffffff; }
+  .nav-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .nav-links { display: flex; align-items: center; gap: 6px; }
+  .nav-link { font-size: 12px; color: rgba(255,255,255,0.6); text-decoration: none; padding: 5px 10px; border-radius: var(--radius); border: 0.5px solid rgba(255,255,255,0.2); }
+  .nav-link:hover { background: rgba(255,255,255,0.08); }
+  .nav-tag { font-size: 10px; padding: 2px 8px; background: var(--gold-light); color: var(--gold-dark); border-radius: 20px; font-weight: 500; }
+
+  .main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* API BANNER */
+  .api-banner { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .api-banner.connected { border-color: var(--gold); background: var(--gold-light); }
+  .api-icon { font-size: 18px; color: var(--gold-dark); flex-shrink: 0; }
+  .api-text { flex: 1; min-width: 200px; }
+  .api-text p { font-size: 12px; color: var(--text-secondary); margin: 2px 0 0; }
+  .api-text strong { font-size: 13px; color: var(--text-primary); }
+  .api-input-wrap { display: flex; gap: 6px; align-items: center; }
+  .api-input { font-size: 12px; padding: 6px 10px; border: 0.5px solid var(--border-strong); border-radius: var(--radius); background: var(--bg-primary); color: var(--text-primary); width: 260px; font-family: monospace; }
+  .api-input:focus { outline: none; border-color: var(--gold); }
+  .btn-connect { font-size: 12px; padding: 6px 14px; background: var(--charcoal); color: white; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+  .btn-connect:hover { background: var(--charcoal-dark); }
+  .btn-disconnect { font-size: 12px; padding: 6px 12px; background: transparent; border: 0.5px solid var(--border-strong); border-radius: var(--radius); cursor: pointer; color: var(--text-secondary); }
+  .dot-gold { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); display: inline-block; margin-right: 4px; }
+
+  /* PAGE HEADER */
+  .page-header { margin-bottom: 1.5rem; padding-left: 14px; border-left: 3px solid var(--gold); }
+  .page-title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .page-title i { color: var(--gold-dark); font-size: 22px; }
+  .agent-badge { font-size: 10px; padding: 3px 10px; background: var(--charcoal); color: var(--gold); border-radius: 20px; font-weight: 600; letter-spacing: 0.04em; }
+  .page-desc { font-size: 13px; color: var(--text-secondary); }
+
+  /* FORM */
+  .form-card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1rem; }
+  .form-section { padding: 1.1rem 1.25rem; border-bottom: 0.5px solid var(--border); }
+  .form-section:last-child { border-bottom: none; }
+  .section-label { font-size: 11px; font-weight: 600; color: var(--gold-dark); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+  .section-label i { font-size: 13px; }
+  textarea { width: 100%; font-size: 13px; font-family: inherit; resize: vertical; border: 0.5px solid var(--border-strong); border-radius: var(--radius); padding: 8px 10px; background: var(--bg-primary); color: var(--text-primary); }
+  textarea:focus { outline: none; border-color: var(--gold); }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  .field-wrap { display: flex; flex-direction: column; gap: 5px; }
+  .field-label { font-size: 12px; color: var(--text-secondary); }
+  select { font-size: 13px; padding: 7px 10px; border: 0.5px solid var(--border-strong); border-radius: var(--radius); background: var(--bg-primary); color: var(--text-primary); width: 100%; cursor: pointer; }
+  select:focus { outline: none; border-color: var(--gold); }
+
+  /* ACTIONS */
+  .action-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .btn-primary { font-size: 13px; padding: 8px 20px; background: var(--charcoal); color: white; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .btn-primary:hover { background: var(--charcoal-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { font-size: 12px; padding: 7px 14px; background: transparent; border: 0.5px solid var(--border-strong); border-radius: var(--radius); cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
+  .btn-secondary:hover { background: var(--bg-secondary); }
+  .btn-print { font-size: 12px; padding: 7px 14px; background: var(--gold-light); border: 0.5px solid var(--gold); border-radius: var(--radius); cursor: pointer; color: var(--gold-dark); display: flex; align-items: center; gap: 5px; font-weight: 500; }
+  .btn-copy { font-size: 12px; padding: 7px 14px; background: var(--green-bg); border: 0.5px solid var(--green); border-radius: var(--radius); cursor: pointer; color: var(--green); display: flex; align-items: center; gap: 5px; font-weight: 500; }
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner-gold { width: 12px; height: 12px; border: 2px solid var(--gold-light); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* WORKFLOW PANEL */
+  .workflow-panel { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .workflow-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .agent-rows { display: flex; flex-direction: column; gap: 10px; }
+  .agent-row { border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px; }
+  .agent-row.active { border-color: var(--gold); background: var(--gold-light); }
+  .agent-row.done { border-color: var(--green); background: var(--green-bg); }
+  .agent-row.error { border-color: var(--red); background: var(--red-bg); }
+  .agent-num { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+  .agent-num.active { background: var(--gold); color: white; }
+  .agent-num.done { background: var(--green); color: white; }
+  .agent-num.error { background: var(--red); color: white; }
+  .agent-info { flex: 1; }
+  .agent-name { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+  .agent-name.active { color: var(--gold-dark); }
+  .agent-name.done { color: var(--green); }
+  .agent-desc { font-size: 12px; color: var(--text-secondary); }
+  .agent-status { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+
+  /* BRIEF PANEL */
+  .brief-panel { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px; }
+  .brief-header { background: var(--charcoal); padding: 10px 1.25rem; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .brief-header i { font-size: 14px; color: var(--gold); }
+  .brief-header-title { font-size: 13px; font-weight: 600; color: #ffffff; }
+  .brief-header-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--gold); color: var(--charcoal-dark); font-weight: 600; margin-left: auto; }
+  .brief-toggle { font-size: 11px; color: rgba(255,255,255,0.5); margin-left: 8px; }
+  .brief-body { padding: 1rem 1.25rem; display: none; }
+  .brief-body.open { display: block; }
+  .brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .brief-section { margin-bottom: 12px; }
+  .brief-section-title { font-size: 11px; font-weight: 600; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .brief-item { font-size: 12px; color: var(--text-secondary); padding: 3px 0; display: flex; gap: 6px; align-items: flex-start; }
+  .brief-item::before { content: '◆'; color: var(--gold); font-size: 8px; flex-shrink: 0; margin-top: 3px; }
+  .brief-objective { font-size: 13px; color: var(--text-primary); background: var(--gold-light); border: 0.5px solid var(--gold); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 12px; font-style: italic; }
+  .risk-item { font-size: 12px; color: var(--text-secondary); padding: 5px 8px; background: var(--bg-secondary); border-radius: var(--radius); margin-bottom: 4px; }
+  .risk-item strong { color: var(--red); }
+
+  /* SOW DOCUMENT */
+  .sow-panel { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px; }
+  .sow-toolbar { background: var(--bg-secondary); padding: 10px 1.25rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sow-toolbar i { font-size: 15px; color: var(--gold-dark); }
+  .sow-toolbar-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .sow-doc { padding: 2rem 2.5rem; max-height: 600px; overflow-y: auto; }
+
+  /* SOW DOCUMENT TYPOGRAPHY */
+  .sow-doc h1 { font-size: 22px; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; border-bottom: 3px solid var(--gold); padding-bottom: 10px; }
+  .sow-doc .sow-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; padding: 8px 12px; background: var(--gold-light); border-radius: var(--radius); border-left: 3px solid var(--gold); }
+  .sow-doc h2 { font-size: 13px; font-weight: 700; color: white; background: var(--charcoal); margin: 24px 0 10px; padding: 7px 14px; text-transform: uppercase; letter-spacing: 0.06em; border-radius: var(--radius); }
+  .sow-doc h3 { font-size: 13px; font-weight: 600; color: var(--charcoal); margin: 14px 0 6px; }
+  .sow-doc p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px; }
+  .sow-doc strong { color: var(--charcoal); font-weight: 600; }
+  .sow-doc em { color: var(--gold-dark); font-style: normal; font-weight: 500; }
+  .sow-doc ul { padding-left: 18px; margin-bottom: 10px; }
+  .sow-doc li { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 4px; }
+  .sow-doc table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px; border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .sow-doc table th { background: var(--charcoal); color: white; padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .sow-doc table td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-secondary); vertical-align: top; line-height: 1.5; }
+  .sow-doc table td:first-child { font-weight: 500; color: var(--charcoal); white-space: nowrap; }
+  .sow-doc table tr:last-child td { border-bottom: none; }
+  .sow-doc table tr:nth-child(even) td { background: var(--bg-secondary); }
+  .sow-doc table tr:last-child td { font-weight: 700; color: var(--charcoal); background: var(--gold-light); }
+  .sow-doc .disclaimer { font-size: 11px; color: var(--text-muted); border-top: 0.5px solid var(--border); margin-top: 28px; padding-top: 12px; font-style: italic; }
+
+  .validation-panel { border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; border: 0.5px solid var(--border); }
+  .validation-panel.rejected { background: var(--red-bg); border-color: var(--red); }
+  .validation-panel.warnings { background: var(--amber-bg); border-color: var(--amber); }
+  .validation-panel.approved { background: var(--green-bg); border-color: var(--green); }
+  .validation-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .validation-header i { font-size: 18px; }
+  .validation-title { font-size: 14px; font-weight: 700; }
+  .validation-summary { font-size: 13px; margin-bottom: 12px; line-height: 1.6; }
+  .validation-issue { background: var(--bg-primary); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 6px; border-left: 3px solid var(--red); }
+  .validation-warning { background: var(--bg-primary); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 6px; border-left: 3px solid var(--amber); }
+  .issue-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; color: var(--red); }
+  .warning-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; color: var(--amber); }
+  .issue-desc { font-size: 12px; color: var(--text-primary); margin-bottom: 3px; font-weight: 500; }
+  .issue-rec { font-size: 12px; color: var(--text-secondary); }
+  .agent-num.warning { background: var(--amber); color: white; }
+  .empty i { font-size: 36px; color: var(--border-strong); display: block; margin-bottom: 12px; }
+  .empty h3 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+  .empty p { font-size: 12px; }
+  .error-box { background: var(--red-bg); border: 0.5px solid var(--red); border-radius: var(--radius-lg); padding: 1rem 1.25rem; color: var(--red); font-size: 13px; margin-bottom: 10px; }
+
+  footer { text-align: center; padding: 2rem 1rem 1rem; font-size: 11px; color: var(--text-muted); border-top: 0.5px solid var(--border); margin-top: 2rem; }
+  footer a { color: var(--gold-dark); text-decoration: none; }
+
+  @media print {
+    nav, .api-banner, .page-header, .form-card, .action-bar, .workflow-panel, .brief-panel, .sow-toolbar, footer { display: none !important; }
+    .sow-panel { border: none; }
+    .sow-doc { max-height: none; padding: 0; }
+    body { background: white; }
+  }
+  @media (max-width: 700px) { .three-col { grid-template-columns: 1fr; } .brief-grid { grid-template-columns: 1fr; } .nav-links { display: none; } .api-input { width: 180px; } .sow-doc { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo"><i class="ti ti-file-text"></i></div>
+    <div>
+      <div class="nav-title">AgentPM</div>
+      <div class="nav-sub">AI Portfolio · Daniel Mazzini</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html"><i class="ti ti-home" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>All tools</a>
+    <span class="nav-tag">AI Tool 3 of 4</span>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="api-banner" id="api-banner">
+    <i class="ti ti-key api-icon"></i>
+    <div class="api-text">
+      <strong>Anthropic API key required</strong>
+      <p>Your key is stored locally in your browser and never sent anywhere except Anthropic's API.</p>
+    </div>
+    <div class="api-input-wrap">
+      <input class="api-input" type="password" id="api-key" placeholder="sk-ant-..." oninput="checkKey()">
+      <button class="btn-connect" onclick="saveKey()">Connect</button>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="ti ti-file-certificate"></i>
+      SOW Orchestrator
+      <span class="agent-badge">3-Agent AI System</span>
+    </h1>
+    <p class="page-desc">Agent 1 structures discovery notes · Agent 2 validates scope autonomously · Agent 3 drafts SOW only if Agent 2 approves</p>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section">
+      <p class="section-label"><i class="ti ti-notes"></i>Raw discovery notes</p>
+      <textarea id="discovery-notes" style="min-height:180px" placeholder="Paste your raw discovery notes here — bullet points, stream of consciousness, meeting notes, anything goes. Agent 1 will structure them automatically.&#10;&#10;Or select one of the 6 pre-built scenarios from the dropdown below and click Load to see a full example.&#10;&#10;Include: customer pain points, technical requirements, scope discussions, timeline expectations, constraints, stakeholder concerns..."></textarea>
+    </div>
+    <div class="form-section">
+      <p class="section-label"><i class="ti ti-settings"></i>Engagement context</p>
+      <div class="three-col">
+        <div class="field-wrap">
+          <span class="field-label">Engagement type</span>
+          <select id="eng-type">
+            <option value="Private Cloud Deployment (VCF)">Private Cloud Deployment (VCF)</option>
+            <option value="Network Security Hardening (NSX)">Network Security Hardening (NSX)</option>
+            <option value="Telco NFV Transformation">Telco NFV Transformation</option>
+            <option value="SASE / SD-WAN Migration">SASE / SD-WAN Migration</option>
+            <option value="Cloud Modernization Assessment">Cloud Modernization Assessment</option>
+            <option value="NOC Automation Program">NOC Automation Program</option>
+            <option value="Data Center Consolidation">Data Center Consolidation</option>
+            <option value="Hybrid Cloud Architecture">Hybrid Cloud Architecture</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <span class="field-label">Engagement size</span>
+          <select id="eng-size">
+            <option value="Small (under $150K)">Small (under $150K)</option>
+            <option value="Medium ($150K–$500K)" selected>Medium ($150K–$500K)</option>
+            <option value="Large ($500K–$2M)">Large ($500K–$2M)</option>
+            <option value="Enterprise ($2M+)">Enterprise ($2M+)</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <span class="field-label">Customer industry</span>
+          <select id="customer-industry">
+            <option value="Financial Services">Financial Services</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Telco / CSP">Telco / CSP</option>
+            <option value="Manufacturing">Manufacturing</option>
+            <option value="Retail">Retail</option>
+            <option value="Government">Government</option>
+            <option value="Energy">Energy</option>
+            <option value="Technology">Technology</option>
+            <option value="Not specified">Not specified</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn-primary" id="run-btn" onclick="runOrchestrator()">
+      <i class="ti ti-player-play"></i> Generate SOW
+    </button>
+    <select id="scenario-select" style="font-size:12px;padding:6px 10px;border:0.5px solid var(--border-strong);border-radius:var(--radius);background:var(--bg-primary);color:var(--text-secondary);cursor:pointer;max-width:280px;">
+      <option value="">— Load a discovery scenario —</option>
+      <option value="vcf">01 · VCF Private Cloud Deployment (Financial Services)</option>
+      <option value="nsx">02 · NSX Security Hardening (Healthcare)</option>
+      <option value="telco">03 · Telco NFV Transformation (Tier 2 Carrier)</option>
+      <option value="sase">04 · SASE / SD-WAN Migration (Manufacturing)</option>
+      <option value="modernization">05 · Cloud Modernization Assessment (Technology)</option>
+      <option value="noc">06 · NOC Automation Program (Cable MSO)</option>
+    </select>
+    <button class="btn-secondary" onclick="loadScenario()"><i class="ti ti-file-upload"></i> Load</button>
+    <button class="btn-secondary" onclick="clearAll()"><i class="ti ti-trash"></i> Clear</button>
+  </div>
+
+  <div id="results">
+    <div class="empty">
+      <i class="ti ti-file-certificate"></i>
+      <h3>Ready to generate your SOW</h3>
+      <p>Paste raw discovery notes above or load a scenario. Agent 1 will structure your scope, then Agent 2 will draft the complete Statement of Work.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>AgentPM · SOW Orchestrator · <a href="https://www.linkedin.com/in/daniel-mazzini-22059734/" target="_blank">Daniel Mazzini</a> · Principal Architect & Senior TPM</p>
+  <p style="margin-top:4px">2-Agent AI System · Powered by Claude API · danvzla.github.io/ai-sow-orchestrator</p>
+</footer>
+
+<script>
+// ─── SCENARIOS ────────────────────────────────────────────────────────────────
+const SCENARIOS = {
+  vcf: {
+    type: 'Private Cloud Deployment (VCF)', size: 'Large ($500K–$2M)', industry: 'Financial Services',
+    notes: `Customer: Global investment bank, 8000 employees, NY and London DCs.
+Meeting attendees: CTO, VP Infrastructure, Network Architect, Storage Lead.
+
+Pain points discussed:
+- Currently on vSphere 6.7, EOL approaching, panicking about support
+- 3 separate teams managing compute, network, storage — no unified ops
+- DR site in NJ is manual, last test failed 18 months ago
+- Audit found inconsistent security policy enforcement across clusters
+- Board wants private cloud by end of fiscal year — 9 months
+
+What they want:
+- VCF on 3 existing Dell PowerEdge nodes + 6 new nodes
+- NSX microsegmentation from day 1 — compliance requirement
+- vSAN stretched cluster for DC to DC DR
+- Unified SDDC Manager dashboard for ops team
+- Migration of 180 VMs from legacy environment
+
+Constraints:
+- Cannot take production systems down on weekdays
+- Security team must approve NSX policy before any traffic flows
+- All work must go through change management — 2 week approval cycle
+- Budget approved: $1.2M hardware + $400K services
+- No offshore delivery — they had a bad experience
+
+Timeline they mentioned: Go-live by October 31. They have a board presentation Nov 1.
+
+Concerns raised:
+- Their network team has never touched NSX — worried about skills gap
+- Storage team protective of their EMC arrays, resistant to vSAN
+- Previous VMware project (3 years ago) went 6 months over — they brought it up twice
+
+Open items:
+- Need to confirm if existing Dell hardware is VCF certified
+- License counts TBD — waiting on VMware quote
+- Change management process unclear — need to loop in their ITSM team`
+  },
+  nsx: {
+    type: 'Network Security Hardening (NSX)', size: 'Medium ($150K–$500K)', industry: 'Healthcare',
+    notes: `Customer: Regional hospital network, 4 hospitals, 12000 patients served daily.
+Meeting: CISO, Network Director, Compliance Officer (joined late, left early).
+
+Current state:
+- NSX-T deployed 2 years ago but only used for routing — DFW never turned on
+- Flat network between clinical and administrative systems — compliance audit flagged this
+- Two ransomware incidents in 18 months — second one cost $2.1M in downtime
+- No east-west visibility — security team flying blind
+- HIPAA audit coming in Q2, they need to show microsegmentation is in place
+
+What they want from us:
+- Turn on NSX DFW across all 4 hospital locations
+- Design and implement security groups by workload type (clinical, admin, IoT medical devices)
+- vDefend ATP deployment for east-west threat detection
+- Documentation for HIPAA audit — they need evidence of controls
+- Training for their 2-person security team
+
+They mentioned:
+- Medical IoT devices are a nightmare — can't patch them, can't take them offline
+- Their EHR vendor (Epic) has to approve any network changes — adds 3 weeks to timeline
+- Some legacy VMs running XP — no one wants to touch them but they can't be decommissioned
+- Budget is tight — $320K approved, no wiggle room
+
+Hard requirements:
+- Zero downtime during implementation — hospitals can't go dark
+- All changes tested in lab before production
+- Rollback plan required for every change window
+- Weekly status report to CISO
+
+Timeline: Must be complete before Q2 HIPAA audit — 14 weeks from now.
+
+Open issues:
+- Epic approval process — need to initiate immediately
+- IoT device inventory incomplete — only 60% of devices catalogued
+- Lab environment availability — they share a lab with another team`
+  },
+  telco: {
+    type: 'Telco NFV Transformation', size: 'Enterprise ($2M+)', industry: 'Telco / CSP',
+    notes: `Customer: Tier 2 regional carrier, 3M subscribers, 8 states.
+Attendees: CTO, VP Network Engineering, Head of OSS/BSS, 2 network architects.
+
+Context:
+- Running physical network infrastructure — MPLS, physical routers at 120 sites
+- 5G rollout planned for next year — current infrastructure can't support it
+- OpenStack POC ran 18 months ago, failed — political scar tissue around this
+- Competition from Tier 1 carriers eating into enterprise accounts
+- Board approved transformation budget: $4M over 2 years
+
+Scope discussion:
+- Phase 1: NFV infrastructure on OpenStack at 2 core DCs — Dallas and Atlanta
+- Phase 2: VNF onboarding — vEPC, vIMS, vFirewall (Fortinet)
+- Phase 3: SD-WAN overlay at 40 priority sites
+- OSS/BSS integration is in scope but complex — they use Amdocs for BSS
+- MANO tooling — they asked about Tacker vs. commercial options
+
+Technical requirements surfaced:
+- High availability — 99.999% for core network functions
+- ETSI NFV compliance — they have a regulatory requirement
+- Existing Ericsson equipment must coexist during transition (3 year phase-out)
+- Performance: vEPC must support 500K simultaneous sessions by Phase 2 completion
+
+What went wrong last time (they told us):
+- OpenStack POC had no clear success criteria
+- Vendor (not us) oversold automation, underdelivered
+- Integration with OSS took twice as long as projected
+- No executive sponsor — project died in committee
+
+What they want different:
+- Dedicated PM embedded with their team
+- Weekly steering committee with VP sign-off
+- Hard go/no-go milestones with clear criteria
+- Reference architecture sign-off before any deployment
+
+Timeline: Phase 1 complete in 9 months. 5G readiness by 18 months.
+Concerns: OSS/BSS integration risk, Ericsson coexistence complexity, skills gap in their team.`
+  },
+  sase: {
+    type: 'SASE / SD-WAN Migration', size: 'Medium ($150K–$500K)', industry: 'Manufacturing',
+    notes: `Customer: Auto parts manufacturer, 6 plants (US and Mexico), 3500 employees.
+Meeting attendees: IT Director, Network Manager, Plant IT Lead (Mexico City joined by video).
+
+Situation:
+- Legacy MPLS WAN connecting all plants — expensive, inflexible, 18 month lead time for new circuits
+- COVID accelerated remote work but VPN architecture wasn't designed for it — performance complaints daily
+- Recent acquisition added 2 plants in Mexico with different network architecture
+- Microsoft 365 and SAP S/4HANA migration underway — latency from backhauling M365 through HQ is killing user experience
+- Security team wants Zero Trust but doesn't know where to start
+
+What they want:
+- SD-WAN at all 6 plant locations + HQ
+- SASE for remote users — replace legacy VPN
+- Direct internet access at plants for SaaS traffic (M365, Salesforce)
+- Security policy consistent across all locations including Mexico
+- They mentioned VMware SASE and Palo Alto Prisma — want our recommendation
+
+Key constraints:
+- Mexico plants have local IT staff but no network engineers — need simple management
+- SAP S/4HANA cutover in 4 months — network must be stable before that
+- Plant production lines cannot have any network interruption during business hours
+- IT Director wants single pane of glass for all locations
+
+Existing infrastructure:
+- Cisco routers at all locations
+- Fortinet firewalls at 3 of 6 plants
+- No SD-WAN experience in-house
+- ISP contracts expiring: 4 plants in 8 months, 2 in 14 months
+
+Budget: $380K for services. Hardware/licensing separate.
+Timeline: All 6 locations live within 6 months. Mexico plants first due to acquisition integration pressure.
+
+Concerns raised:
+- Mexico IT staff language/support — most comfortable in Spanish
+- Plant network changes need approval from plant managers, not just IT
+- Internet reliability in one Mexico location is poor — need backup connectivity discussion`
+  },
+  modernization: {
+    type: 'Cloud Modernization Assessment', size: 'Small (under $150K)', industry: 'Technology',
+    notes: `Customer: Mid-size SaaS company, 800 employees, Series C funded.
+Attendees: CTO, VP Engineering, Head of Platform, FinOps Lead.
+
+Context:
+- Running on AWS for 5 years — started as startup, grew fast, tech debt accumulated
+- Monthly AWS bill: $840K/month and climbing 20% YoY — board asking questions
+- 180 microservices, 60% still on EC2 instances, rest on EKS
+- Multiple teams deployed infrastructure independently — no standards, no governance
+- FinOps lead hired 3 months ago, overwhelmed, needs a framework
+
+What they want:
+- Full assessment of current AWS environment — what they have, what it costs
+- Identify top 10 optimization opportunities with estimated savings
+- Modernization roadmap: what to containerize, what to move to managed services, what to sunset
+- FinOps operating model — tagging strategy, cost allocation, showback reports
+- Executive presentation for board — they have a board meeting in 8 weeks
+
+Scope boundaries discussed:
+- Assessment only in Phase 1 — no implementation in this SOW
+- All 3 AWS accounts in scope (prod, staging, dev)
+- Kubernetes optimization is in scope
+- Data warehouse (Snowflake) is out of scope — separate workstream
+- Security assessment is out of scope — they have a separate engagement for that
+
+Timeline: 6 weeks for assessment, 2 weeks for documentation and presentation.
+Budget: $95K fixed fee. They pushed back on T&M.
+
+Key stakeholder dynamics:
+- CTO wants quick wins to show board — cost savings by end of quarter
+- VP Engineering resistant — worried assessment will expose decisions he made 3 years ago
+- FinOps Lead is a champion — she brought us in, we need to keep her informed
+- Head of Platform will be our technical counterpart day to day`
+  },
+  noc: {
+    type: 'NOC Automation Program', size: 'Large ($500K–$2M)', industry: 'Telco / CSP',
+    notes: `Customer: Large cable MSO, 15M subscribers, 12 regional NOCs.
+Attendees: SVP Network Operations, NOC Director, Tools & Automation Lead, 3 NOC Managers.
+
+Current state:
+- 12 NOCs operating independently — no unified tooling, no standard processes
+- L1 NOC analysts spending 70% of time on manual tasks — ticket triage, runbook lookup, escalation decisions
+- Average MTTR for P2 incidents: 4.2 hours. Target: under 90 minutes.
+- 180 alarms per day per NOC — 80% are duplicates or non-actionable noise
+- Each NOC has its own escalation matrix — inconsistent, causes finger-pointing
+
+What they want:
+- Alarm correlation and noise reduction — target 60% reduction in actionable alarms
+- Automated runbook execution for top 20 incident types
+- Unified ticketing integration across all 12 NOCs (ServiceNow is their ITSM)
+- L1 decision support — AI-assisted triage recommendations
+- Dashboards: real-time network health, MTTR trends, automation coverage
+- Knowledge base migration — 4 years of runbooks in SharePoint, needs to be structured
+
+Technical environment:
+- Monitoring: SolarWinds, Nagios, custom scripts — all 3 in use across different NOCs
+- ITSM: ServiceNow (recently upgraded to Tokyo release)
+- Network: Cisco (60%), Juniper (30%), Nokia (10%)
+- They want API-first integration — no screen scraping
+
+Constraints:
+- Cannot replace SolarWinds or Nagios — political decision, not negotiable
+- Any automation must have human approval before execution in first 6 months
+- NOC staff union has concerns about automation — need change management workstream
+- Security team must approve all API connections to network elements
+
+Timeline: Phase 1 (correlation + top 5 runbooks) in 6 months. Full deployment in 18 months.
+Budget: $1.4M for Phase 1 services.
+
+Political dynamics:
+- 3 of 12 NOC managers opposed to centralization — threatened by consolidation
+- Union rep attended part of the meeting — automation anxiety is real
+- SVP is champion but leaving company in 9 months — succession unclear`
+  }
+};
+
+function loadScenario() {
+  const key = document.getElementById('scenario-select').value;
+  if (!key) { alert('Please select a scenario first.'); return; }
+  const sc = SCENARIOS[key];
+  document.getElementById('discovery-notes').value = sc.notes;
+  document.getElementById('eng-type').value = sc.type;
+  document.getElementById('eng-size').value = sc.size;
+  document.getElementById('customer-industry').value = sc.industry;
+}
+
+function clearAll() {
+  document.getElementById('discovery-notes').value = '';
+  document.getElementById('results').innerHTML = `<div class="empty"><i class="ti ti-file-certificate"></i><h3>Ready to generate your SOW</h3><p>Paste raw discovery notes above or load a scenario.</p></div>`;
+  lastBrief = null; lastSOW = '';
+}
+
+// ─── API KEY ──────────────────────────────────────────────────────────────────
+function checkKey() {
+  const key = document.getElementById('api-key').value.trim();
+  if (key.startsWith('sk-ant-') && key.length > 20) document.getElementById('api-banner').style.borderColor = 'var(--gold)';
+}
+function saveKey() {
+  const key = document.getElementById('api-key').value.trim();
+  if (!key || !key.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key starting with sk-ant-'); return; }
+  localStorage.setItem('agentpm_api_key', key);
+  const banner = document.getElementById('api-banner');
+  banner.classList.add('connected');
+  banner.innerHTML = `<i class="ti ti-shield-check api-icon"></i><div class="api-text"><strong>API key connected</strong><p><span class="dot-gold"></span>Ready · Key stored locally in your browser</p></div><button class="btn-disconnect" onclick="disconnectKey()">Disconnect</button>`;
+}
+function disconnectKey() { localStorage.removeItem('agentpm_api_key'); location.reload(); }
+function getApiKey() { return localStorage.getItem('agentpm_api_key') || document.getElementById('api-key')?.value?.trim() || ''; }
+window.addEventListener('load', () => { const s = localStorage.getItem('agentpm_api_key'); if (s) { document.getElementById('api-key').value = s; saveKey(); } });
+
+let lastBrief = null;
+let lastSOW = '';
+
+// ─── WORKFLOW RENDER ──────────────────────────────────────────────────────────
+function showWorkflow() {
+  document.getElementById('results').innerHTML = `
+    <div class="workflow-panel">
+      <div class="workflow-title"><i class="ti ti-cpu" style="font-size:13px;color:var(--gold)"></i> 3-Agent SOW Orchestration · Autonomous validation gate</div>
+      <div class="agent-rows">
+        <div class="agent-row" id="agent1-row">
+          <div class="agent-num" id="agent1-num">1</div>
+          <div class="agent-info">
+            <div class="agent-name" id="agent1-name">Discovery Analyst</div>
+            <div class="agent-desc">Reads raw notes · structures scope · identifies deliverables · maps assumptions and risks</div>
+            <div class="agent-status" id="agent1-status">Waiting...</div>
+          </div>
+        </div>
+        <div class="agent-row" id="agent2-row">
+          <div class="agent-num" id="agent2-num">2</div>
+          <div class="agent-info">
+            <div class="agent-name" id="agent2-name">Scope Validator</div>
+            <div class="agent-desc">Reviews Agent 1 brief · checks for contradictions, gaps, and ambiguities · decides: approve or reject</div>
+            <div class="agent-status" id="agent2-status">Waiting for Agent 1...</div>
+          </div>
+        </div>
+        <div class="agent-row" id="agent3-row">
+          <div class="agent-num" id="agent3-num">3</div>
+          <div class="agent-info">
+            <div class="agent-name" id="agent3-name">SOW Drafter</div>
+            <div class="agent-desc">Runs only if Agent 2 approves · writes complete Statement of Work from validated brief</div>
+            <div class="agent-status" id="agent3-status">Waiting for Agent 2 approval...</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function setAgentState(num, state, status) {
+  const row = document.getElementById(`agent${num}-row`);
+  const numEl = document.getElementById(`agent${num}-num`);
+  const nameEl = document.getElementById(`agent${num}-name`);
+  const statusEl = document.getElementById(`agent${num}-status`);
+  if (!row) return;
+  row.className = `agent-row ${state}`;
+  numEl.className = `agent-num ${state}`;
+  numEl.innerHTML = state === 'active' ? '<span class="spinner-gold"></span>'
+    : state === 'done' ? '<i class="ti ti-check" style="font-size:13px"></i>'
+    : state === 'warning' ? '<i class="ti ti-alert-triangle" style="font-size:13px"></i>'
+    : state === 'error' ? '<i class="ti ti-x" style="font-size:13px"></i>'
+    : num;
+  nameEl.className = `agent-name ${state}`;
+  if (statusEl) statusEl.textContent = status;
+}
+
+// ─── JSON REPAIR ──────────────────────────────────────────────────────────────
+function repairAndParseJSON(raw) {
+  const first = raw.indexOf('{');
+  const last = raw.lastIndexOf('}');
+  if (first === -1 || last === -1) throw new Error('No JSON object found in response');
+  let s = raw.substring(first, last + 1);
+
+  // Attempt 1: parse as-is
+  try { return JSON.parse(s); } catch(e1) {}
+
+  // Attempt 2: remove non-printable control chars (keep \n \r \t)
+  try {
+    let fixed = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return JSON.parse(fixed);
+  } catch(e2) {}
+
+  // Attempt 3: replace unescaped newlines inside string values
+  try {
+    let fixed = s.replace(/("(?:[^"\\]|\\.)*")|(\n)/g, (match, str, nl) => {
+      if (str) return str; // leave strings alone
+      return '\\n';       // escape bare newlines outside strings
+    });
+    return JSON.parse(fixed);
+  } catch(e3) {}
+
+  // Attempt 4: aggressive — remove all literal newlines and tabs
+  try {
+    let fixed = s.replace(/\r?\n|\t/g, ' ').replace(/\s{2,}/g, ' ');
+    return JSON.parse(fixed);
+  } catch(e4) {}
+
+  throw new Error(`Malformed JSON response — please try again.`);
+}
+
+// ─── AGENT 1: DISCOVERY ANALYST ───────────────────────────────────────────────
+async function runAgent1(notes, engType, engSize, industry, apiKey) {
+
+  // Sanitise notes — remove characters that break JSON string values
+  const safeNotes = notes
+    .replace(/\\/g, '/')          // backslashes → forward slashes
+    .replace(/"/g, "'")           // double quotes → single quotes
+    .replace(/\r\n/g, ' | ')     // Windows line endings → pipe separator
+    .replace(/\n/g, ' | ')       // Unix line endings → pipe separator
+    .replace(/\t/g, ' ')          // tabs → spaces
+    .replace(/[\x00-\x1F\x7F]/g, ''); // strip remaining control chars
+
+  const prompt = `You are a Senior Solutions Architect and Technical Program Manager with 20+ years of experience structuring professional services engagements. You specialize in turning raw customer discovery notes into clean structured requirements briefs.
+
+CRITICAL JSON RULES: Return ONLY a raw JSON object. No markdown, no backticks, no explanation. Every string value must be on a single line with no line breaks inside it. Do not use double quotes inside string values — use single quotes instead. Start your response with { and end with }.
+
+ENGAGEMENT TYPE: ${engType}
+ENGAGEMENT SIZE: ${engSize}
+CUSTOMER INDUSTRY: ${industry}
+
+RAW DISCOVERY NOTES:
+${safeNotes}
+
+Return exactly this JSON structure — keep all string values SHORT and on ONE LINE:
+{
+  "engagement_objective": "one sentence describing what success looks like",
+  "client_profile": "two sentences describing the customer and context",
+  "in_scope": ["workstream 1", "workstream 2", "workstream 3"],
+  "out_of_scope": ["excluded item 1", "excluded item 2"],
+  "deliverables": [
+    {"name": "deliverable name", "description": "what it includes", "format": "document or workshop or implementation"}
+  ],
+  "phases": [
+    {"phase": "phase name", "duration": "e.g. 4 weeks", "activities": ["activity 1", "activity 2"]}
+  ],
+  "assumptions": ["assumption 1", "assumption 2", "assumption 3"],
+  "customer_responsibilities": ["responsibility 1", "responsibility 2"],
+  "dependencies": ["dependency 1", "dependency 2"],
+  "success_criteria": ["criterion 1", "criterion 2"],
+  "risks": [
+    {"risk": "risk title", "mitigation": "how to address it"}
+  ],
+  "estimated_duration": "total duration e.g. 14 weeks",
+  "team_structure": "recommended team composition",
+  "open_items": ["open item 1", "open item 2"]
+}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `API error ${res.status}`); }
+  const data = await res.json();
+  const raw = data.content?.find(b => b.type === 'text')?.text || '';
+  if (!raw) throw new Error('Agent 1 returned an empty response');
+  return repairAndParseJSON(raw);
+}
+
+// ─── AGENT 2: SCOPE VALIDATOR ─────────────────────────────────────────────────
+async function runAgent2Validator(brief, engType, engSize, industry, apiKey) {
+  const prompt = `You are a Senior Quality Assurance Architect reviewing a professional services requirements brief before SOW drafting. Catch problems BEFORE writing begins.
+
+Review this brief and return a validation decision. Return ONLY raw JSON — no markdown, no backticks. Start with { end with }. All string values must be on ONE LINE — no line breaks inside strings. Use single quotes inside strings, never double quotes inside strings.
+
+ENGAGEMENT TYPE: ${engType}
+ENGAGEMENT SIZE: ${engSize}
+CUSTOMER INDUSTRY: ${industry}
+
+BRIEF TO VALIDATE:
+${JSON.stringify(brief)}
+
+Check for: contradictions (timeline vs scope, budget vs deliverables), missing items (success criteria, assumptions, risks), ambiguities (vague scope, unmeasurable outcomes), unrealistic elements (too aggressive timelines), scope gaps (objectives in notes not in scope).
+
+Return exactly this JSON — keep ALL string values SHORT and on ONE LINE:
+{
+  "decision": "approved",
+  "validation_summary": "one sentence summary of validation outcome",
+  "quality_score": 85,
+  "issues": [
+    {"type": "Contradiction", "title": "short title", "description": "what the problem is", "recommendation": "what to fix"}
+  ],
+  "warnings": [
+    {"type": "Risk", "title": "short title", "description": "what to watch for"}
+  ],
+  "approved_items": ["solid item 1", "solid item 2", "solid item 3"]
+}
+
+Decision values: use "rejected" if critical issues found, "approved_with_warnings" if only warnings, "approved" if clean.
+Keep issues and warnings arrays SHORT — maximum 4 items each.
+Keep approved_items to maximum 4 short phrases.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 6000, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `API error ${res.status}`); }
+  const data = await res.json();
+  const raw = data.content?.find(b => b.type === 'text')?.text || '';
+  if (!raw) throw new Error('Agent 2 returned an empty response');
+  return repairAndParseJSON(raw);
+}
+
+// ─── AGENT 3: SOW DRAFTER ─────────────────────────────────────────────────────
+async function runAgent3Drafter(brief, validation, engType, engSize, industry, apiKey) {
+  const validationContext = validation.warnings?.length
+    ? `\n\nVALIDATION NOTES FROM SCOPE VALIDATOR (address these in the SOW):\n${validation.warnings.map(w => `- ${w.title}: ${w.description}`).join('\n')}`
+    : '';
+
+  const prompt = `You are a Senior Principal Consultant with 20+ years writing award-winning Statements of Work for VMware, Dell EMC, Juniper Networks, and Nokia/Ericsson. This brief has been reviewed and approved by a Scope Validator. Write the final SOW with confidence — the scope is solid.
+
+Write a Statement of Work using the validated brief below. Return clean HTML using only: h1, h2, h3, p, ul, li, table, thead, tbody, tr, th, td, strong, em. No markdown. No CSS. No scripts. No div or span. Start directly with <h1>.
+
+ENGAGEMENT TYPE: ${engType}
+ENGAGEMENT SIZE: ${engSize}
+CUSTOMER INDUSTRY: ${industry}
+
+VALIDATED REQUIREMENTS BRIEF:
+${JSON.stringify(brief, null, 2)}${validationContext}
+
+WRITING RULES — follow strictly:
+- Every section opens with 1-2 sentences of professional context prose, then a table
+- Prose is direct and specific — reference actual technologies and customer context
+- Tables are clean, concise, and data-rich — include quantities and effort estimates
+- No generic filler language
+- Use strong tags for key terms, deliverable names, and role names
+- Effort estimates must be realistic and specific — pick a number, not a range
+- Total hours must appear at the bottom of the Work Breakdown table
+
+DOCUMENT STRUCTURE:
+
+<h1>[Engagement Type] — Statement of Work</h1>
+<p><strong>Version:</strong> 1.0 &nbsp;|&nbsp; <strong>Date:</strong> [date] &nbsp;|&nbsp; <strong>Status:</strong> Draft for Review</p>
+
+<h2>1. Engagement Overview</h2>
+[2 sentences on customer context and why this engagement matters. Then:]
+[Table — Field | Detail — rows: Engagement Type, Industry, Size, Duration, Delivery Model, Engagement Lead]
+
+<h2>2. Engagement Objective</h2>
+[2 sentences — specific objective referencing actual technologies and business outcome]
+
+<h2>3. Scope of Work</h2>
+[1 sentence. Then:]
+[Table — Workstream | Description | Key Activities | In Scope]
+
+<h2>4. Deliverables</h2>
+[1 sentence. Then:]
+[Table — # | Deliverable | Description | Format | Quantity | Est. Effort (hrs)]
+[Final row: TOTAL | | | | | XX hrs]
+
+<h2>5. Work Breakdown & Schedule</h2>
+[1 sentence. Then:]
+[Table — Phase | Activity | Owner | Duration | Hours]
+[Subtotal row per phase. Final row: TOTAL | | | | XX hrs]
+
+<h2>6. Milestones & Acceptance</h2>
+[1 sentence. Then:]
+[Table — # | Milestone | Acceptance Criteria | Target Week | Owner]
+
+<h2>7. Assumptions</h2>
+[1 sentence. Then:]
+[Table — # | Assumption | Dependency | Risk if Invalid]
+
+<h2>8. Customer Responsibilities</h2>
+[1 sentence. Then:]
+[Table — # | Responsibility | Details | Required By | Owner]
+
+<h2>9. Out of Scope</h2>
+[1 sentence. Then:]
+[Table — # | Item | Rationale | How to Add]
+
+<h2>10. Risk Register</h2>
+[1 sentence. Then:]
+[Table — # | Risk | Probability | Impact | Mitigation | Owner]
+
+<h2>11. Team Structure</h2>
+[1 sentence. Then:]
+[Table — Role | Responsibilities | Allocation | Location]
+
+<h2>12. Open Items</h2>
+[1 sentence. Then:]
+[Table — # | Item | Decision Required | Owner | Due Date]
+
+<h2>13. Commercial Terms</h2>
+[1 sentence. Then:]
+[Table — Term | Details — rows: Engagement Model, Payment Schedule, Travel & Expenses, Change Order Process, Cancellation Notice, Warranty Period]
+
+<h2>14. Document Control</h2>
+[Table — Version | Date | Author | Changes — one row for Version 1.0]`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `API error ${res.status}`); }
+  const data = await res.json();
+  return data.content?.find(b => b.type === 'text')?.text || '';
+}
+
+// ─── MAIN ORCHESTRATOR ────────────────────────────────────────────────────────
+async function runOrchestrator() {
+  const apiKey = getApiKey();
+  if (!apiKey) { alert('Please enter your Anthropic API key first.'); return; }
+  const notes = document.getElementById('discovery-notes').value.trim();
+  if (!notes) { alert('Please paste your discovery notes or load a scenario first.'); return; }
+
+  const engType = document.getElementById('eng-type').value;
+  const engSize = document.getElementById('eng-size').value;
+  const industry = document.getElementById('customer-industry').value;
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Orchestrating...';
+  lastBrief = null; lastSOW = '';
+
+  showWorkflow();
+
+  try {
+    // ── AGENT 1: DISCOVERY ANALYST ────────────────────────────────────────────
+    setAgentState(1, 'active', 'Reading discovery notes and structuring requirements brief...');
+    const brief = await runAgent1(notes, engType, engSize, industry, apiKey);
+    lastBrief = brief;
+    setAgentState(1, 'done', `Brief complete · ${(brief.in_scope||[]).length} workstreams · ${(brief.deliverables||[]).length} deliverables · ${(brief.risks||[]).length} risks identified`);
+    renderBrief(brief);
+
+    // ── AGENT 2: SCOPE VALIDATOR — AUTONOMOUS DECISION GATE ───────────────────
+    setAgentState(2, 'active', 'Reviewing scope brief for contradictions, gaps, and ambiguities...');
+    const validation = await runAgent2Validator(brief, engType, engSize, industry, apiKey);
+    const decision = validation.decision || 'approved';
+    const issueCount = (validation.issues || []).length;
+    const warnCount = (validation.warnings || []).length;
+    const score = validation.quality_score || 0;
+
+    if (decision === 'rejected') {
+      setAgentState(2, 'error', `Rejected · ${issueCount} issue${issueCount !== 1 ? 's' : ''} found · Quality score: ${score}/100 · Fix notes and regenerate`);
+      setAgentState(3, 'error', 'Blocked — Agent 2 rejected the scope brief');
+      renderValidationResult(validation, 'rejected');
+      return;
+    }
+
+    if (decision === 'approved_with_warnings') {
+      setAgentState(2, 'warning', `Approved with ${warnCount} warning${warnCount !== 1 ? 's' : ''} · Quality score: ${score}/100 · Proceeding to SOW drafting`);
+    } else {
+      setAgentState(2, 'done', `Approved · Quality score: ${score}/100 · ${(validation.approved_items||[]).length} solid scope items confirmed`);
+    }
+    renderValidationResult(validation, decision);
+
+    // ── AGENT 3: SOW DRAFTER — ONLY RUNS IF AGENT 2 APPROVED ─────────────────
+    setAgentState(3, 'active', 'Drafting Statement of Work from validated brief...');
+    const sow = await runAgent3Drafter(brief, validation, engType, engSize, industry, apiKey);
+    lastSOW = sow;
+    setAgentState(3, 'done', 'SOW complete · Ready to print or copy');
+    renderSOW(sow, brief);
+
+  } catch(err) {
+    const failedAgent = lastBrief ? (lastSOW ? 3 : 2) : 1;
+    setAgentState(failedAgent, 'error', err.message);
+    document.getElementById('results').innerHTML += `<div class="error-box" style="margin-top:10px"><strong>Error in Agent ${failedAgent}:</strong> ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-player-play"></i> Generate SOW';
+  }
+}
+
+// ─── RENDER VALIDATION RESULT ─────────────────────────────────────────────────
+function renderValidationResult(v, decision) {
+  const issues = v.issues || [];
+  const warnings = v.warnings || [];
+  const approved = v.approved_items || [];
+
+  const configs = {
+    rejected: {
+      cls: 'rejected', icon: 'ti-circle-x', iconColor: '#A32D2D',
+      title: `Scope rejected — ${issues.length} issue${issues.length !== 1 ? 's' : ''} must be resolved`,
+      titleColor: '#A32D2D',
+      hint: 'Edit your discovery notes to address the issues below, then click Generate SOW again.'
+    },
+    approved_with_warnings: {
+      cls: 'warnings', icon: 'ti-alert-triangle', iconColor: '#854F0B',
+      title: `Scope approved with ${warnings.length} warning${warnings.length !== 1 ? 's' : ''} — proceeding to SOW drafting`,
+      titleColor: '#854F0B',
+      hint: 'Agent 3 will incorporate these warnings into the SOW risk register.'
+    },
+    approved: {
+      cls: 'approved', icon: 'ti-circle-check', iconColor: '#3B6D11',
+      title: `Scope approved — quality score ${v.quality_score || 0}/100`,
+      titleColor: '#3B6D11',
+      hint: 'All scope items validated. Proceeding to SOW drafting.'
+    }
+  };
+  const cfg = configs[decision] || configs.approved;
+
+  let html = `
+    <div class="validation-panel ${cfg.cls}">
+      <div class="validation-header">
+        <i class="ti ${cfg.icon}" style="font-size:20px;color:${cfg.iconColor}"></i>
+        <span class="validation-title" style="color:${cfg.titleColor}">${cfg.title}</span>
+      </div>
+      <p class="validation-summary">${v.validation_summary || ''}</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:${issues.length || warnings.length ? '12px' : '0'}">${cfg.hint}</p>`;
+
+  if (issues.length) {
+    html += issues.map(i => `
+      <div class="validation-issue">
+        <div class="issue-type">${i.type}</div>
+        <div class="issue-desc">${i.title}</div>
+        <div class="issue-rec">${i.description} — <strong>Fix:</strong> ${i.recommendation}</div>
+      </div>`).join('');
+  }
+
+  if (warnings.length) {
+    html += warnings.map(w => `
+      <div class="validation-warning">
+        <div class="warning-type">${w.type}</div>
+        <div class="issue-desc">${w.title}</div>
+        <div class="issue-rec">${w.description}</div>
+      </div>`).join('');
+  }
+
+  if (approved.length && decision !== 'rejected') {
+    html += `<div style="font-size:11px;color:var(--text-muted);margin-top:10px">
+      <strong>Validated scope items:</strong> ${approved.join(' · ')}
+    </div>`;
+  }
+
+  html += `</div>`;
+
+  const workflow = document.querySelector('.workflow-panel');
+  const briefPanel = document.querySelector('.brief-panel')?.closest('div');
+  const insertAfter = briefPanel || workflow;
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  insertAfter.parentNode.insertBefore(container, insertAfter.nextSibling);
+}
+
+// ─── RENDER BRIEF ─────────────────────────────────────────────────────────────
+function renderBrief(b) {
+  const container = document.createElement('div');
+  container.innerHTML = `
+    <div class="brief-panel">
+      <div class="brief-header" onclick="toggleBrief(this)">
+        <i class="ti ti-list-check"></i>
+        <span class="brief-header-title">Agent 1 output — Structured requirements brief</span>
+        <span class="brief-header-badge">${(b.in_scope||[]).length} workstreams · ${(b.deliverables||[]).length} deliverables</span>
+        <span class="brief-toggle">▼ Show brief</span>
+      </div>
+      <div class="brief-body" id="brief-body">
+        <div class="brief-objective">${b.engagement_objective || ''}</div>
+        <div class="brief-grid">
+          <div>
+            <div class="brief-section">
+              <div class="brief-section-title">In scope</div>
+              ${(b.in_scope||[]).map(i=>`<div class="brief-item">${i}</div>`).join('')}
+            </div>
+            <div class="brief-section">
+              <div class="brief-section-title">Deliverables</div>
+              ${(b.deliverables||[]).map(d=>`<div class="brief-item"><strong>${d.name}</strong> — ${d.description}</div>`).join('')}
+            </div>
+            <div class="brief-section">
+              <div class="brief-section-title">Success criteria</div>
+              ${(b.success_criteria||[]).map(s=>`<div class="brief-item">${s}</div>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div class="brief-section">
+              <div class="brief-section-title">Out of scope</div>
+              ${(b.out_of_scope||[]).map(i=>`<div class="brief-item">${i}</div>`).join('')}
+            </div>
+            <div class="brief-section">
+              <div class="brief-section-title">Assumptions</div>
+              ${(b.assumptions||[]).map(a=>`<div class="brief-item">${a}</div>`).join('')}
+            </div>
+            <div class="brief-section">
+              <div class="brief-section-title">Risks identified</div>
+              ${(b.risks||[]).map(r=>`<div class="risk-item"><strong>${r.risk}</strong> — ${r.mitigation}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+        ${(b.open_items||[]).length ? `<div class="brief-section"><div class="brief-section-title">Open items requiring follow-up</div>${b.open_items.map(o=>`<div class="brief-item">${o}</div>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  const workflow = document.querySelector('.workflow-panel');
+  workflow.parentNode.insertBefore(container, workflow.nextSibling);
+}
+
+function toggleBrief(header) {
+  const body = document.getElementById('brief-body');
+  const toggle = header.querySelector('.brief-toggle');
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    toggle.textContent = '▼ Show brief';
+  } else {
+    body.classList.add('open');
+    toggle.textContent = '▲ Hide brief';
+  }
+}
+
+// ─── RENDER SOW ───────────────────────────────────────────────────────────────
+function renderSOW(sowHTML, brief) {
+  const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  const container = document.createElement('div');
+  container.innerHTML = `
+    <div class="sow-panel">
+      <div class="sow-toolbar">
+        <i class="ti ti-file-certificate"></i>
+        <span class="sow-toolbar-title">Agent 2 output — Statement of Work</span>
+        <button class="btn-print" onclick="window.print()" style="margin-left:auto"><i class="ti ti-printer"></i> Print / Save PDF</button>
+        <button class="btn-copy" onclick="copySOW()"><i class="ti ti-copy"></i> Copy text</button>
+      </div>
+      <div class="sow-doc" id="sow-content">
+        ${sowHTML}
+        <p class="disclaimer">This Statement of Work is generated as a draft for review and is subject to legal review, customer negotiation, and final approval before execution. Commercial terms, pricing, and signatures are placeholders and must be completed prior to contract execution. Generated by AgentPM SOW Orchestrator · Daniel Mazzini · Principal Architect & Senior TPM.</p>
+      </div>
+    </div>`;
+  const brief_panel = document.querySelector('.brief-panel')?.closest('div');
+  if (brief_panel) {
+    brief_panel.parentNode.insertBefore(container, brief_panel.nextSibling);
+  } else {
+    document.getElementById('results').appendChild(container);
+  }
+}
+
+function copySOW() {
+  const el = document.getElementById('sow-content');
+  if (!el) return;
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('SOW copied to clipboard. Paste into Word or Google Docs.');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('SOW copied to clipboard.');
+  });
+}
+</script>
+</body>
+</html>
