@@ -175,4 +175,4 @@ Bilingual: English & Spanish
 - 📧 danvzla@gmail.com
 - 💼 [LinkedIn](https://www.linkedin.com/in/daniel-mazzini-22059734/)
 - 🐙 [GitHub](https://github.com/danvzla)
-- 🌐 [AgentPM Portfolio](https://danvzla.github.io)
+- 🌐 [AI Portfolio](https://github.com/danvzla)
