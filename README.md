@@ -156,7 +156,7 @@ The SOW Drafter (Agent 3) produces a 14-section document combining professional 
 
 ## About this project
 
-This tool automates the discovery-to-proposal workflow I ran hundreds of times across Broadcom, VMware, Dell EMC, and Juniper Networks. The 3-agent architecture separates three distinct cognitive tasks:
+This tool automates the discovery-to-proposal workflow I ran hundreds of times in my architect career. The 3-agent architecture separates three distinct cognitive tasks:
 
 - **Analytical extraction** (Agent 1) — reading noise, producing structure
 - **Quality gatekeeping** (Agent 2) — catching scope problems before they reach customers
