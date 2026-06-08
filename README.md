@@ -2,7 +2,7 @@
 
 > Autonomous 3-agent AI pipeline that turns raw customer discovery notes into a professional Statement of Work in under 60 seconds.
 
-**Part of the [AgentPM AI Portfolio](https://github.com/danvzla) · Daniel Mazzini · Principal Architect & Senior TPM**
+**Part of the [AI Portfolio](https://github.com/danvzla) · Daniel Mazzini · Principal Architect & Senior TPM**
 
 ---
 
