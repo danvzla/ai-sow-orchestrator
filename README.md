@@ -1,4 +1,4 @@
-# SOW Orchestrator — AgentPM
+# SOW Orchestrator — Agent
 
 > Autonomous 3-agent AI pipeline that turns raw customer discovery notes into a professional Statement of Work in under 60 seconds.
 
