@@ -1,0 +1,25 @@
+Customer: Regional hospital network, 4 hospitals, 12000 patients served daily.
+Meeting: CISO, Network Director, Compliance Officer.
+
+Current state:
+- NSX-T deployed 2 years ago but DFW never turned on
+- Flat network between clinical and administrative systems — compliance flagged
+- Two ransomware incidents in 18 months — second cost $2.1M downtime
+- No east-west visibility
+- HIPAA audit coming in Q2, need to show microsegmentation in place
+
+What they want:
+- Turn on NSX DFW across all 4 hospital locations
+- Security groups by workload type (clinical, admin, IoT medical devices)
+- vDefend ATP deployment for east-west threat detection
+- HIPAA audit documentation
+- Training for 2-person security team
+
+Constraints:
+- Zero downtime — hospitals cannot go dark
+- Epic EHR vendor must approve network changes — adds 3 weeks
+- Medical IoT devices cannot be patched or taken offline
+- Budget: $320K firm
+- Weekly status to CISO
+
+Timeline: Complete before Q2 HIPAA audit — 14 weeks.

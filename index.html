@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOW Orchestrator — AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --bg:#0D0C09; --surface:#161410; --surface2:#1E1B12; --surface3:#282516;
+  --border:rgba(201,168,76,0.14); --border2:rgba(201,168,76,0.26);
+  --ink:#F5EDD8; --body:#C8B89A; --muted:#8A7A60; --dim:#5A4E38;
+  --gold:#C9A84C; --gold-d:#A07830; --gold-l:rgba(201,168,76,0.12);
+  --gold-xl:rgba(201,168,76,0.06); --gold-text:#F5E9C8;
+  --red:#F87171; --red-bg:rgba(248,113,113,0.12);
+  --amber:#FB923C; --amber-bg:rgba(251,146,60,0.12);
+  --green:#34D399; --green-bg:rgba(52,211,153,0.1);
+  --blue:#60A5FA; --blue-bg:rgba(96,165,250,0.12);
+  --shadow:0 2px 8px rgba(0,0,0,0.4); --r:8px; --rl:12px;
+  --text-primary:#F5EDD8; --text-secondary:#C8B89A; --text-muted:#8A7A60;
+  --bg-primary:#161410; --bg-secondary:#1E1B12; --bg-tertiary:#282516;
+  --border-strong:rgba(201,168,76,0.26);
+  --gold-dark:#A07830; --gold-light:rgba(201,168,76,0.12); --charcoal-dark:#0D0C09;
+}
+html,body{height:100%;}
+body{font-family:var(--font);background:var(--bg);-webkit-font-smoothing:antialiased;}
+button{cursor:pointer;border:none;font:inherit;}
+input,select,textarea{font:inherit;}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;z-index:300;
+  background:var(--surface);border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;padding:0 1.5rem;gap:12px;}
+.topbar-mark{width:30px;height:30px;border-radius:7px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold-d),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(201,168,76,0.3);}
+.topbar-mark i{font-size:16px;color:#0D0C09;}
+.topbar-name{font-size:14px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;}
+.topbar-div{width:1px;height:16px;background:var(--border);}
+.topbar-tool{font-size:13px;font-weight:500;color:var(--muted);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.topbar-badge{font-size:11px;font-weight:600;padding:3px 10px;
+  background:var(--gold-l);color:var(--gold);border-radius:20px;border:1px solid var(--border2);}
+.topbar-link{font-size:12px;color:var(--muted);padding:5px 12px;
+  border:1px solid var(--border);border-radius:var(--r);text-decoration:none;}
+.topbar-link:hover{color:var(--ink);}
+
+/* LEFT PANEL */
+.left-panel{position:fixed;top:52px;left:0;width:360px;bottom:0;z-index:200;
+  background:var(--surface);border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;overflow:hidden;}
+.left-header{flex-shrink:0;padding:1rem 1.25rem .875rem;border-bottom:1px solid var(--border);}
+.left-title{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-0.025em;
+  margin-bottom:3px;display:flex;align-items:center;gap:8px;}
+.agent-badge{font-size:10px;font-weight:600;padding:2px 8px;background:var(--gold-l);
+  color:var(--gold);border-radius:20px;border:1px solid var(--border2);}
+.left-desc{font-size:11.5px;color:rgba(255,255,255,0.65);line-height:1.55;}
+.provider-bar{display:flex;align-items:center;gap:8px;padding:.75rem 1.25rem;
+  border-bottom:1px solid var(--border);flex-shrink:0;}
+.prov-label{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--dim);white-space:nowrap;}
+.prov-pills{display:flex;border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;flex:1;}
+.prov-pill{flex:1;padding:6px 4px;font-size:11px;font-weight:600;color:var(--muted);
+  background:var(--surface2);display:flex;align-items:center;justify-content:center;
+  gap:4px;transition:all .15s;border-right:1px solid var(--border);}
+.prov-pill:last-child{border-right:none;}
+.prov-pill i{font-size:12px;}
+.prov-pill.active{background:var(--gold-d);color:#fff;}
+.prov-pill.active-openai{background:#10a37f;color:#fff;}
+.prov-pill:not(.active):not(.active-openai):hover{background:var(--surface3);color:var(--ink);}
+.key-bar{display:flex;gap:6px;padding:.625rem 1.25rem;
+  border-bottom:1px solid var(--border);flex-shrink:0;}
+.key-input{flex:1;padding:7px 10px;font-size:12px;font-family:monospace;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--r);color:var(--ink);min-width:0;}
+.key-input:focus{outline:none;border-color:var(--gold);}
+.btn-connect{padding:7px 14px;background:var(--gold-d);color:#fff;
+  border-radius:var(--r);font-size:12px;font-weight:600;}
+.btn-connect:hover{background:var(--gold);color:#0D0C09;}
+.status-bar{flex-shrink:0;display:flex;align-items:center;gap:7px;
+  padding:.5rem 1.25rem;font-size:12px;color:var(--gold);
+  background:var(--gold-xl);border-bottom:1px solid var(--border);}
+.status-bar i{font-size:13px;flex-shrink:0;}
+.status-bar.openai-status{color:#10a37f;background:rgba(16,163,127,0.06);}
+.left-form{flex:1;overflow-y:auto;padding:1rem 1.25rem;
+  display:flex;flex-direction:column;gap:.875rem;}
+.left-form::-webkit-scrollbar{width:4px;}
+.left-form::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.f-label{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);
+  display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.f-label i{font-size:13px;color:var(--gold);}
+textarea{width:100%;min-height:130px;padding:10px 12px;resize:vertical;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r);color:var(--ink);font-size:12.5px;line-height:1.55;}
+textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.1);}
+textarea::placeholder{color:var(--dim);font-size:12px;}
+.fields-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.field-block label{display:block;font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;}
+select{width:100%;padding:7px 28px 7px 10px;font-size:12.5px;color:var(--ink);
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  cursor:pointer;appearance:none;transition:border-color .15s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23C9A84C' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;}
+select:focus{outline:none;border-color:var(--gold);}
+.scenario-row{display:flex;gap:6px;}
+.scenario-row select{flex:1;}
+.btn-load{padding:7px 12px;background:var(--gold-l);color:var(--gold);
+  border:1px solid var(--border2);border-radius:var(--r);
+  font-size:12px;font-weight:600;white-space:nowrap;}
+.btn-load:hover{background:rgba(201,168,76,0.2);}
+.action-wrap{flex-shrink:0;padding:.875rem 1.25rem;
+  border-top:1px solid var(--border);background:var(--surface);}
+.btn-generate{width:100%;padding:11px;font-size:13.5px;font-weight:700;
+  background:linear-gradient(135deg,var(--gold-d),var(--gold));
+  color:#0D0C09;border-radius:var(--rl);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 2px 10px rgba(201,168,76,0.3);
+  transition:all .2s;margin-bottom:6px;}
+.btn-generate:hover{box-shadow:0 4px 16px rgba(201,168,76,0.4);transform:translateY(-1px);}
+.btn-generate:active{transform:none;}
+.btn-generate:disabled{opacity:.45;cursor:not-allowed;transform:none!important;}
+.helper-row{display:flex;gap:5px;}
+.btn-ghost{flex:1;padding:7px 8px;font-size:11.5px;font-weight:500;color:var(--muted);
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  display:flex;align-items:center;justify-content:center;gap:4px;}
+.btn-ghost:hover{color:var(--ink);border-color:var(--border2);}
+.run-status{text-align:center;font-size:11px;color:var(--dim);
+  font-style:italic;margin-top:5px;min-height:16px;}
+
+/* SPINNERS */
+.spinner{width:14px;height:14px;border:2px solid rgba(13,12,9,0.4);
+  border-top-color:#0D0C09;border-radius:50%;
+  animation:spin .7s linear infinite;display:inline-block;}
+.spinner-gold{width:16px;height:16px;border:2px solid var(--gold-l);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:spin .7s linear infinite;display:inline-block;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TAB BAR */
+.tabs-bar{
+  position:fixed;top:52px;left:360px;right:0;height:46px;z-index:100;
+  background:var(--surface);border-bottom:1px solid var(--border2);
+  display:none;align-items:center;padding:0 1rem;gap:4px;
+}
+.tabs-bar.visible{display:flex;}
+.tab-btn{padding:6px 14px;border-radius:var(--r);font-size:12px;font-weight:600;
+  color:var(--muted);background:none;
+  display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;}
+.tab-btn:hover:not(:disabled){color:var(--ink);background:var(--surface2);}
+.tab-btn.active{background:var(--gold-l);color:var(--gold-text);border:1px solid var(--border2);}
+.tab-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* TAB PANELS — EACH IS FIXED AND INDEPENDENTLY SCROLLABLE */
+.tab-panel{
+  position:fixed;
+  top:52px;
+  left:360px;right:0;bottom:0;
+  overflow-y:auto;overflow-x:hidden;
+  background:var(--bg);padding:1.5rem;
+  display:none;
+}
+.tab-panel.active{display:block;}
+.tabs-bar.visible~.tab-panel{top:98px;}
+
+/* EMPTY STATE */
+#panel-empty{
+  position:fixed;top:52px;left:360px;right:0;bottom:0;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;color:var(--dim);
+  text-align:center;padding:3rem;background:var(--bg);
+}
+.empty-icon{width:72px;height:72px;border-radius:16px;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;color:var(--gold);opacity:.5;}
+.empty-title{font-size:16px;font-weight:700;color:var(--muted);}
+.empty-desc{font-size:13px;color:var(--dim);max-width:340px;line-height:1.65;}
+
+/* PIPELINE */
+.pipeline-wrap{background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--rl);box-shadow:var(--shadow);}
+.pipeline-header{padding:.875rem 1.25rem;background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  border-radius:var(--rl) var(--rl) 0 0;
+  display:flex;align-items:center;gap:8px;}
+.pipeline-header i{font-size:15px;color:var(--gold);}
+.pipeline-header-title{font-size:13px;font-weight:700;color:var(--ink);}
+.pipeline-header-sub{font-size:11px;color:var(--muted);margin-left:auto;}
+.pipeline-agents{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:10px;}
+.ag-card{border:1px solid var(--border);border-radius:var(--r);
+  padding:1rem 1.25rem;display:flex;align-items:flex-start;gap:12px;
+  transition:border-color .3s,background .3s;background:var(--surface2);}
+.ag-card.ag-active{border-color:var(--gold);background:rgba(201,168,76,0.06);}
+.ag-card.ag-done{border-color:var(--green);background:rgba(52,211,153,0.06);}
+.ag-card.ag-warn{border-color:var(--amber);background:rgba(251,146,60,0.06);}
+.ag-card.ag-error{border-color:var(--red);background:rgba(248,113,113,0.06);}
+.ag-num{width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;background:var(--surface3);color:var(--muted);}
+.ag-card.ag-active .ag-num{background:var(--gold-l);border:2px solid var(--gold);}
+.ag-card.ag-done .ag-num{background:rgba(52,211,153,0.15);border:2px solid var(--green);color:var(--green);}
+.ag-card.ag-warn .ag-num{background:rgba(251,146,60,0.15);border:2px solid var(--amber);color:var(--amber);}
+.ag-card.ag-error .ag-num{background:rgba(248,113,113,0.15);border:2px solid var(--red);color:var(--red);}
+.ag-info{flex:1;min-width:0;}
+.ag-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.ag-card.ag-active .ag-name{color:var(--gold-text);}
+.ag-card.ag-done .ag-name{color:var(--green);}
+.ag-role{font-size:11.5px;color:var(--dim);margin-bottom:6px;}
+.ag-status{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.ag-progress{height:3px;background:var(--border);border-radius:2px;margin-top:8px;display:none;}
+.ag-card.ag-active .ag-progress{display:block;}
+.ag-progress-bar{height:100%;background:var(--gold);border-radius:2px;width:0%;transition:width .4s;}
+@keyframes ag-pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.ag-card.ag-active{animation:ag-pulse 2s ease-in-out infinite;}
+
+/* BRIEF */
+.brief-objective{font-size:13px;color:var(--gold-text);background:var(--gold-l);
+  border:1px solid var(--border2);border-radius:var(--r);
+  padding:10px 14px;margin-bottom:1rem;font-style:italic;line-height:1.65;}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1rem;}
+.brief-section{margin-bottom:.75rem;}
+.brief-section-title{font-size:10.5px;font-weight:700;color:var(--gold);
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.brief-item{font-size:12px;color:var(--body);padding:3px 0;
+  display:flex;gap:6px;align-items:flex-start;line-height:1.5;}
+.brief-item::before{content:'◆';color:var(--gold);font-size:8px;flex-shrink:0;margin-top:4px;}
+.risk-item{font-size:12px;color:var(--body);padding:6px 10px;
+  background:var(--surface2);border-radius:var(--r);
+  margin-bottom:4px;border-left:2px solid var(--red);}
+.risk-item strong{color:var(--red);}
+
+/* VALIDATION */
+.val-panel{border-radius:var(--r);padding:1rem 1.25rem;
+  border:1px solid var(--border);margin-bottom:1rem;}
+.val-panel.rejected{background:var(--red-bg);border-color:var(--red);}
+.val-panel.warnings{background:var(--amber-bg);border-color:var(--amber);}
+.val-panel.approved{background:var(--green-bg);border-color:var(--green);}
+.val-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.val-title{font-size:14px;font-weight:700;}
+.val-summary{font-size:13px;margin-bottom:10px;color:var(--body);line-height:1.6;}
+.val-hint{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.val-issue{background:var(--surface);border-radius:var(--r);padding:10px 12px;
+  margin-bottom:6px;border-left:3px solid var(--red);}
+.val-warning{background:var(--surface);border-radius:var(--r);padding:10px 12px;
+  margin-bottom:6px;border-left:3px solid var(--amber);}
+.issue-type{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:3px;color:var(--red);}
+.warning-type{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:3px;color:var(--amber);}
+.issue-desc{font-size:12px;color:var(--ink);margin-bottom:3px;font-weight:600;}
+.issue-rec{font-size:12px;color:var(--body);}
+
+/* SOW */
+.sow-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;
+  padding-bottom:1rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.sow-toolbar i{font-size:15px;color:var(--gold);}
+.sow-toolbar-title{font-size:13px;font-weight:700;color:var(--ink);}
+.btn-print{font-size:12px;padding:6px 14px;background:var(--gold-l);
+  border:1px solid var(--border2);border-radius:var(--r);color:var(--gold);
+  display:flex;align-items:center;gap:5px;font-weight:600;margin-left:auto;}
+.btn-print:hover{background:rgba(201,168,76,0.2);}
+.btn-copy{font-size:12px;padding:6px 14px;background:var(--green-bg);
+  border:1px solid rgba(52,211,153,0.3);border-radius:var(--r);color:var(--green);
+  display:flex;align-items:center;gap:5px;font-weight:600;}
+.sow-doc h1{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:6px;
+  border-bottom:2px solid var(--gold);padding-bottom:10px;}
+.sow-doc .sow-meta{font-size:12px;color:var(--muted);margin-bottom:20px;
+  padding:8px 12px;background:var(--gold-l);
+  border-radius:var(--r);border-left:3px solid var(--gold);}
+.sow-doc h2{font-size:11px;font-weight:700;color:var(--gold);
+  background:var(--surface2);border:1px solid var(--border2);
+  margin:20px 0 8px;padding:7px 14px;
+  text-transform:uppercase;letter-spacing:.08em;border-radius:var(--r);}
+.sow-doc h3{font-size:13px;font-weight:700;color:var(--gold-text);margin:12px 0 5px;}
+.sow-doc p{font-size:13px;color:var(--body);line-height:1.7;margin-bottom:10px;}
+.sow-doc strong{color:var(--ink);font-weight:700;}
+.sow-doc em{color:var(--gold);font-style:normal;font-weight:600;}
+.sow-doc ul{padding-left:18px;margin-bottom:10px;}
+.sow-doc li{font-size:13px;color:var(--body);line-height:1.65;margin-bottom:4px;}
+.sow-doc table{width:100%;border-collapse:collapse;margin-bottom:14px;
+  font-size:12px;border:1px solid var(--border2);}
+.sow-doc table th{background:var(--surface3);color:var(--gold-text);
+  padding:8px 12px;text-align:left;font-size:11px;
+  font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.sow-doc table td{padding:8px 12px;border-bottom:1px solid var(--border);
+  color:var(--body);vertical-align:top;line-height:1.5;}
+.sow-doc table td:first-child{font-weight:600;color:var(--ink);white-space:nowrap;}
+.sow-doc table tr:last-child td{border-bottom:none;}
+.sow-doc table tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+.sow-doc .disclaimer{font-size:11px;color:var(--dim);border-top:1px solid var(--border);
+  margin-top:24px;padding-top:12px;font-style:italic;}
+.error-box{background:var(--red-bg);border:1px solid var(--red);
+  border-radius:var(--r);padding:1rem;color:var(--red);font-size:13px;margin-top:1rem;}
+
+@media print{
+  .topbar,.left-panel,.tabs-bar,#panel-empty,
+  #panel-pipeline,#panel-brief,#panel-validation,.sow-toolbar{display:none!important;}
+  #panel-sow{position:static!important;display:block!important;padding:0;overflow:visible;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-mark"><i class="ti ti-file-certificate"></i></div>
+  <span class="topbar-name">AI</span>
+  <div class="topbar-div"></div>
+  <span class="topbar-tool">SOW Orchestrator</span>
+  <div class="topbar-right">
+    <span class="topbar-badge">3-Agent AI System</span>
+    <a class="topbar-link" href="https://www.linkedin.com/in/daniel-mazzini-22059734/" target="_blank">Daniel Mazzini</a>
+  </div>
+</header>
+
+<div class="left-panel">
+  <div class="left-header">
+    <div class="left-title">SOW Orchestrator <span class="agent-badge">3 Agents</span></div>
+    <div class="left-desc">Agent 1 structures notes · Agent 2 validates scope · Agent 3 drafts SOW only if approved</div>
+  </div>
+  <div class="provider-bar">
+    <span class="prov-label">Provider</span>
+    <div class="prov-pills">
+      <button class="prov-pill active" id="mode-demo"   onclick="setMode('demo')"><i class="ti ti-player-play"></i> Demo</button>
+      <button class="prov-pill"        id="mode-claude" onclick="setMode('claude')"><i class="ti ti-sparkles"></i> Claude</button>
+      <button class="prov-pill"        id="mode-openai" onclick="setMode('openai')"><i class="ti ti-brand-openai"></i> OpenAI</button>
+    </div>
+  </div>
+  <div class="key-bar" id="key-group" style="display:none">
+    <input class="key-input" type="password" id="api-key" placeholder="sk-ant-...">
+    <button class="btn-connect" onclick="saveKey()">Connect</button>
+  </div>
+  <div class="status-bar" id="mode-status">
+    <i class="ti ti-player-play"></i>
+    <span><strong>Demo Mode</strong> — No API key needed.</span>
+  </div>
+  <div class="left-form">
+    <div>
+      <div class="f-label"><i class="ti ti-notes"></i> Raw discovery notes</div>
+      <textarea id="discovery-notes" placeholder="Paste raw discovery notes, or select a pre-built scenario below and click Load..."></textarea>
+    </div>
+    <div>
+      <div class="f-label"><i class="ti ti-settings"></i> Engagement context</div>
+      <div class="fields-grid">
+        <div class="field-block"><label for="eng-type">Engagement type</label>
+          <select id="eng-type">
+            <option value="Private Cloud Deployment (VCF)">Private Cloud Deployment (VCF)</option>
+            <option value="Network Security Hardening (NSX)">Network Security Hardening (NSX)</option>
+            <option value="Telco NFV Transformation">Telco NFV Transformation</option>
+            <option value="SASE / SD-WAN Migration">SASE / SD-WAN Migration</option>
+            <option value="Cloud Modernization Assessment">Cloud Modernization Assessment</option>
+            <option value="NOC Automation Program">NOC Automation Program</option>
+            <option value="Data Center Consolidation">Data Center Consolidation</option>
+            <option value="Hybrid Cloud Architecture">Hybrid Cloud Architecture</option>
+          </select></div>
+        <div class="field-block"><label for="eng-size">Engagement size</label>
+          <select id="eng-size">
+            <option value="Small (under $150K)">Small (under $150K)</option>
+            <option value="Medium ($150K–$500K)" selected>Medium ($150K–$500K)</option>
+            <option value="Large ($500K–$2M)">Large ($500K–$2M)</option>
+            <option value="Enterprise ($2M+)">Enterprise ($2M+)</option>
+          </select></div>
+        <div class="field-block"><label for="customer-industry">Customer industry</label>
+          <select id="customer-industry">
+            <option value="Financial Services">Financial Services</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Telco / CSP">Telco / CSP</option>
+            <option value="Manufacturing">Manufacturing</option>
+            <option value="Retail">Retail</option>
+            <option value="Government">Government</option>
+            <option value="Energy">Energy</option>
+            <option value="Technology">Technology</option>
+            <option value="Not specified">Not specified</option>
+          </select></div>
+      </div>
+    </div>
+    <div>
+      <div class="f-label"><i class="ti ti-database"></i> Pre-built scenarios</div>
+      <div class="scenario-row">
+        <select id="scenario-select">
+          <option value="">— Select a scenario —</option>
+          <option value="vcf">01 · VCF Private Cloud (Financial Services)</option>
+          <option value="nsx">02 · NSX Security Hardening (Healthcare)</option>
+          <option value="telco">03 · Telco NFV Transformation</option>
+          <option value="sase">04 · SASE / SD-WAN Migration (Manufacturing)</option>
+          <option value="modernization">05 · Cloud Modernization Assessment</option>
+          <option value="noc">06 · NOC Automation Program (Cable MSO)</option>
+        </select>
+        <button class="btn-load" onclick="loadScenario()"><i class="ti ti-file-upload"></i> Load</button>
+      </div>
+    </div>
+  </div>
+  <div class="action-wrap">
+    <button class="btn-generate" id="run-btn" onclick="runOrchestrator()">
+      <i class="ti ti-player-play" style="font-size:15px"></i> Generate SOW
+    </button>
+    <div class="helper-row">
+      <button class="btn-ghost" onclick="clearAll()"><i class="ti ti-trash"></i> Clear</button>
+      <button class="btn-ghost" id="btn-print-ghost" style="display:none" onclick="window.print()"><i class="ti ti-printer"></i> Print SOW</button>
+    </div>
+    <div class="run-status" id="run-status"></div>
+  </div>
+</div>
+
+<div class="tabs-bar" id="tabs-bar">
+  <button class="tab-btn active" data-tab="pipeline" onclick="switchTab('pipeline')"><i class="ti ti-cpu"></i> Pipeline</button>
+  <button class="tab-btn" data-tab="brief"      onclick="switchTab('brief')"      id="tab-brief"      disabled><i class="ti ti-list-check"></i> Agent 1 — Brief</button>
+  <button class="tab-btn" data-tab="validation" onclick="switchTab('validation')" id="tab-validation" disabled><i class="ti ti-shield-check"></i> Agent 2 — Validation</button>
+  <button class="tab-btn" data-tab="sow"        onclick="switchTab('sow')"        id="tab-sow"        disabled><i class="ti ti-file-certificate"></i> Agent 3 — SOW</button>
+</div>
+
+<div id="panel-empty">
+  <div class="empty-icon"><i class="ti ti-file-certificate"></i></div>
+  <div class="empty-title">Ready to generate your SOW</div>
+  <div class="empty-desc">Select a provider, load a scenario or paste discovery notes, then click Generate SOW.</div>
+</div>
+
+<div class="tab-panel" id="panel-pipeline"></div>
+<div class="tab-panel" id="panel-brief"></div>
+<div class="tab-panel" id="panel-validation"></div>
+<div class="tab-panel" id="panel-sow"></div>
+
+<script>
+// ─── DEMO DATA ───────────────────────────────────────────────────────────────
+const DEMO_BRIEF = {
+  engagement_objective: "Deploy VMware Cloud Foundation 5.x across 9 Dell PowerEdge nodes for a global investment bank, establishing a unified private cloud with NSX microsegmentation and vSAN stretched cluster DR, achieving full production readiness by October 31.",
+  client_profile: "Global investment bank with 8,000 employees operating data centers in New York and New Jersey. Currently running vSphere 6.7 facing EOL with siloed compute, network, and storage operations and a failed DR test 18 months ago.",
+  in_scope: [
+    "VCF 5.x deployment on 3 existing + 6 new Dell PowerEdge nodes",
+    "NSX microsegmentation design and implementation (compliance requirement)",
+    "vSAN stretched cluster for DC-to-DC disaster recovery",
+    "Migration of 180 VMs from legacy vSphere 6.7 environment",
+    "SDDC Manager unified operations dashboard and runbooks"
+  ],
+  out_of_scope: [
+    "Application-layer testing and validation",
+    "EMC storage array migration or decommission",
+    "Network infrastructure outside NSX scope (physical switching)",
+    "Offshore delivery resources"
+  ],
+  deliverables: [
+    { name: "VCF Reference Architecture", description: "Detailed design document covering compute, network, storage, and management layers", format: "document" },
+    { name: "NSX Microsegmentation Policy", description: "Approved security group definitions and distributed firewall rules", format: "document" },
+    { name: "VM Migration Runbooks", description: "Tested, change-management-approved runbooks for 180 VM migrations in batches", format: "document" },
+    { name: "DR Validation Report", description: "Documented stretched cluster test with RTO/RPO results", format: "document" },
+    { name: "Operations Handover Package", description: "SDDC Manager training, runbooks, and 30-day hypercare support", format: "workshop" }
+  ],
+  phases: [
+    { phase: "Foundation", duration: "4 weeks", activities: ["HW procurement validation", "VCF deployment on 9 nodes", "SDDC Manager baseline config", "NSX policy design workshops"] },
+    { phase: "NSX & DR", duration: "5 weeks", activities: ["NSX DFW policy implementation", "Security team approval process", "vSAN stretched cluster config", "DR test execution and documentation"] },
+    { phase: "Migration & Handover", duration: "5 weeks", activities: ["VM migration in weekly batches (change mgmt)", "User acceptance testing", "Operations training", "30-day hypercare"] }
+  ],
+  assumptions: [
+    "Dell PowerEdge hardware is VCF 5.x certified — customer to confirm before kickoff",
+    "VMware licensing quote received and approved before Phase 1 start",
+    "Customer change management approval cycle is 2 weeks maximum",
+    "NSX security team review and approval is scheduled within Phase 1",
+    "Customer provides a test environment for pre-production validation"
+  ],
+  customer_responsibilities: [
+    "Hardware procurement and rack-and-stack of 6 new Dell PowerEdge nodes",
+    "Change management submission and approval for all migration windows",
+    "NSX policy sign-off from internal security team",
+    "VM application owners available for migration scheduling",
+    "ITSM team engaged for change process within first 2 weeks"
+  ],
+  dependencies: [
+    "Dell hardware VCF certification confirmation",
+    "VMware license quote and purchase order",
+    "Epic EHR vendor approval not required for this engagement",
+    "Customer ITSM team availability for change management"
+  ],
+  success_criteria: [
+    "All 9 nodes operational in SDDC Manager with green health status",
+    "NSX microsegmentation in place with security team sign-off",
+    "180 VMs migrated with zero unplanned downtime",
+    "DR failover test completes within 4-hour RTO",
+    "Operations team certified on SDDC Manager before handover"
+  ],
+  risks: [
+    { risk: "Hardware certification gap", mitigation: "Run VCF compatibility check against Dell model numbers in Week 1 — escalate to VMware if uncertified" },
+    { risk: "Change management delays", mitigation: "Front-load change ticket submissions; build 2-week buffer into migration schedule" },
+    { risk: "Storage team resistance to vSAN", mitigation: "Executive sponsor to align storage team expectations before kickoff; include storage lead in architecture review" },
+    { risk: "NSX skills gap in customer team", mitigation: "Include NSX fundamentals training in Phase 1 and embed architect during DFW policy design" }
+  ],
+  estimated_duration: "14 weeks",
+  team_structure: "1 Principal Architect (lead), 1 Network Engineer (NSX/vSAN), 1 Migration Specialist, 1 TPM (part-time)",
+  open_items: [
+    "Dell hardware VCF certification confirmation — customer action, Week 1",
+    "VMware license counts and quote — pending VMware account team",
+    "Change management process review — ITSM team loop-in required"
+  ]
+};
+
+const DEMO_VALIDATION = {
+  decision: "approved_with_warnings",
+  validation_summary: "Scope is well-structured with clear objectives and realistic phasing. Two warnings require attention in the SOW risk register.",
+  quality_score: 88,
+  issues: [],
+  warnings: [
+    { type: "Risk", title: "Hardware certification unconfirmed", description: "Dell PowerEdge VCF certification is listed as an open item. If hardware is not certified, Phase 1 timeline is at risk. SOW should include a go/no-go checkpoint at Week 1." },
+    { type: "Risk", title: "Previous failed VMware project cited twice", description: "Customer referenced a 6-month overrun on a prior VMware engagement. SOW should include explicit milestone governance with executive review gates to manage perception and accountability." }
+  ],
+  approved_items: [
+    "Phased delivery with clear 14-week timeline",
+    "NSX policy approval gate before DFW deployment",
+    "180 VM migration via change management batches",
+    "DR validation with documented RTO/RPO evidence"
+  ]
+};
+
+const DEMO_SOW = `<h1>Private Cloud Deployment (VCF) — Statement of Work</h1>
+<p class="sow-meta"><strong>Version:</strong> 1.0 &nbsp;|&nbsp; <strong>Date:</strong> June 2026 &nbsp;|&nbsp; <strong>Status:</strong> Draft for Review &nbsp;|&nbsp; <strong>Prepared by:</strong> Daniel Mazzini, Principal Architect</p>
+
+<h2>1. Engagement Overview</h2>
+<p>This engagement delivers a production-ready <strong>VMware Cloud Foundation 5.x</strong> private cloud for a global investment bank operating dual data centers in New York and New Jersey. The engagement addresses imminent vSphere 6.7 EOL risk, eliminates siloed operations across compute, network, and storage, and establishes a board-committed private cloud by October 31.</p>
+<table><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td>Engagement Type</td><td>Private Cloud Deployment (VCF 5.x)</td></tr>
+<tr><td>Industry</td><td>Financial Services</td></tr>
+<tr><td>Engagement Size</td><td>Large ($500K–$2M)</td></tr>
+<tr><td>Duration</td><td>14 weeks (3 phases)</td></tr>
+<tr><td>Delivery Model</td><td>On-site (NY primary) with remote support — no offshore resources</td></tr>
+<tr><td>Engagement Lead</td><td>Principal Architect</td></tr>
+</tbody></table>
+
+<h2>2. Engagement Objective</h2>
+<p>Deploy <strong>VMware Cloud Foundation 5.x</strong> across 9 Dell PowerEdge nodes, implement <strong>NSX microsegmentation</strong> satisfying compliance requirements, establish <strong>vSAN stretched cluster DR</strong> between NY and NJ sites, and migrate 180 production VMs — achieving full production readiness with a documented DR test result before the November 1 board presentation.</p>
+
+<h2>3. Scope of Work</h2>
+<p>Five workstreams define the engagement boundaries. All work is performed on-site in New York and New Jersey during approved change windows.</p>
+<table><thead><tr><th>Workstream</th><th>Description</th><th>Key Activities</th><th>In Scope</th></tr></thead><tbody>
+<tr><td>VCF Platform</td><td>Deploy VCF 5.x on 9-node cluster</td><td>BOM validation, SDDC Manager config, bring-up automation</td><td>Yes</td></tr>
+<tr><td>NSX Microsegmentation</td><td>Design and implement distributed firewall</td><td>Security group design, DFW policy, compliance validation</td><td>Yes</td></tr>
+<tr><td>vSAN Stretched Cluster</td><td>DC-to-DC stretched vSAN for DR</td><td>Witness node, latency validation, failover testing</td><td>Yes</td></tr>
+<tr><td>VM Migration</td><td>180 VM cold/live migration from vSphere 6.7</td><td>Wave planning, runbook authoring, batch execution</td><td>Yes</td></tr>
+<tr><td>Operations Enablement</td><td>Training, runbooks, SDDC Manager handover</td><td>Knowledge transfer, hypercare, documentation</td><td>Yes</td></tr>
+</tbody></table>
+
+<h2>4. Deliverables</h2>
+<p>Six formal deliverables are produced across the 14-week engagement, each requiring customer sign-off before the next phase proceeds.</p>
+<table><thead><tr><th>#</th><th>Deliverable</th><th>Description</th><th>Format</th><th>Qty</th><th>Est. Effort (hrs)</th></tr></thead><tbody>
+<tr><td>D1</td><td><strong>VCF Reference Architecture</strong></td><td>HLD and LLD covering compute, network, storage, management</td><td>Document</td><td>1</td><td>60</td></tr>
+<tr><td>D2</td><td><strong>NSX Microsegmentation Policy</strong></td><td>Approved security groups and DFW rules — compliance evidence</td><td>Document</td><td>1</td><td>80</td></tr>
+<tr><td>D3</td><td><strong>VM Migration Runbooks</strong></td><td>Change-management-approved runbooks for 180 VMs in 6 waves</td><td>Document</td><td>6</td><td>40</td></tr>
+<tr><td>D4</td><td><strong>DR Validation Report</strong></td><td>Stretched cluster failover test results with RTO/RPO evidence</td><td>Document</td><td>1</td><td>24</td></tr>
+<tr><td>D5</td><td><strong>Operations Handover Package</strong></td><td>SDDC Manager runbooks, admin training, architecture decisions log</td><td>Document + Workshop</td><td>1</td><td>32</td></tr>
+<tr><td></td><td><strong>TOTAL</strong></td><td></td><td></td><td></td><td><strong>236 hrs</strong></td></tr>
+</tbody></table>
+
+<h2>5. Work Breakdown &amp; Schedule</h2>
+<p>Three sequential phases with clear entry/exit criteria. Phase 2 cannot begin until NSX policy is approved by the customer security team.</p>
+<table><thead><tr><th>Phase</th><th>Activity</th><th>Owner</th><th>Duration</th><th>Hours</th></tr></thead><tbody>
+<tr><td rowspan="4"><strong>Phase 1 — Foundation</strong></td><td>HW certification validation &amp; BOM review</td><td>Principal Architect</td><td>Week 1</td><td>16</td></tr>
+<tr><td>VCF 5.x deployment on 9 nodes</td><td>Principal Architect</td><td>Weeks 1–3</td><td>80</td></tr>
+<tr><td>SDDC Manager baseline configuration</td><td>Principal Architect</td><td>Week 3</td><td>24</td></tr>
+<tr><td>NSX policy design workshops</td><td>Network Engineer</td><td>Weeks 2–4</td><td>32</td></tr>
+<tr><td><strong>Phase 1 Subtotal</strong></td><td></td><td></td><td>4 weeks</td><td><strong>152</strong></td></tr>
+<tr><td rowspan="3"><strong>Phase 2 — NSX &amp; DR</strong></td><td>NSX DFW policy implementation</td><td>Network Engineer</td><td>Weeks 5–7</td><td>64</td></tr>
+<tr><td>vSAN stretched cluster configuration</td><td>Principal Architect</td><td>Weeks 6–8</td><td>40</td></tr>
+<tr><td>DR failover test &amp; documentation</td><td>Principal Architect + Network</td><td>Week 9</td><td>24</td></tr>
+<tr><td><strong>Phase 2 Subtotal</strong></td><td></td><td></td><td>5 weeks</td><td><strong>128</strong></td></tr>
+<tr><td rowspan="3"><strong>Phase 3 — Migration &amp; Handover</strong></td><td>VM migration (6 weekly waves)</td><td>Migration Specialist</td><td>Weeks 10–14</td><td>80</td></tr>
+<tr><td>Operations training &amp; runbooks</td><td>Principal Architect</td><td>Week 13</td><td>32</td></tr>
+<tr><td>Hypercare &amp; go-live support</td><td>Full team</td><td>Week 14</td><td>16</td></tr>
+<tr><td><strong>Phase 3 Subtotal</strong></td><td></td><td></td><td>5 weeks</td><td><strong>128</strong></td></tr>
+<tr><td><strong>TOTAL</strong></td><td></td><td></td><td><strong>14 weeks</strong></td><td><strong>408 hrs</strong></td></tr>
+</tbody></table>
+
+<h2>6. Milestones &amp; Acceptance</h2>
+<table><thead><tr><th>#</th><th>Milestone</th><th>Acceptance Criteria</th><th>Target Week</th><th>Owner</th></tr></thead><tbody>
+<tr><td>M1</td><td>VCF Platform Go-Live</td><td>All 9 nodes in SDDC Manager with green health status</td><td>Week 3</td><td>Principal Architect</td></tr>
+<tr><td>M2</td><td>NSX Policy Approved</td><td>Security team sign-off on DFW rules and security groups</td><td>Week 7</td><td>Network Engineer</td></tr>
+<tr><td>M3</td><td>DR Test Passed</td><td>Failover completes within 4-hour RTO with documented evidence</td><td>Week 9</td><td>Principal Architect</td></tr>
+<tr><td>M4</td><td>Migration Complete</td><td>180/180 VMs running on VCF with zero unplanned downtime</td><td>Week 13</td><td>Migration Specialist</td></tr>
+<tr><td>M5</td><td>Customer Sign-Off</td><td>Operations team certified; handover package accepted</td><td>Week 14</td><td>TPM</td></tr>
+</tbody></table>
+
+<h2>7. Assumptions</h2>
+<table><thead><tr><th>#</th><th>Assumption</th><th>Dependency</th><th>Risk if Invalid</th></tr></thead><tbody>
+<tr><td>A1</td><td>Dell PowerEdge hardware is VCF 5.x certified</td><td>Customer confirms BOM by Week 1</td><td>Phase 1 delay of 2–4 weeks</td></tr>
+<tr><td>A2</td><td>VMware licensing is procured before Phase 1 start</td><td>VMware account team quote accepted</td><td>Deployment blocked</td></tr>
+<tr><td>A3</td><td>Change management approval cycle does not exceed 2 weeks</td><td>Customer ITSM team aligned</td><td>Migration schedule impact</td></tr>
+<tr><td>A4</td><td>NSX security team review is scheduled within Phase 1</td><td>CISO office commitment</td><td>Phase 2 entry criteria delayed</td></tr>
+<tr><td>A5</td><td>Test/lab environment is available for pre-production validation</td><td>Customer infrastructure team</td><td>Increased production risk</td></tr>
+</tbody></table>
+
+<h2>8. Customer Responsibilities</h2>
+<table><thead><tr><th>#</th><th>Responsibility</th><th>Details</th><th>Required By</th><th>Owner</th></tr></thead><tbody>
+<tr><td>R1</td><td>Hardware procurement and installation</td><td>Rack-and-stack of 6 new Dell PowerEdge nodes</td><td>Week 1</td><td>Customer Infrastructure</td></tr>
+<tr><td>R2</td><td>Change management submissions</td><td>Submit change tickets 2 weeks ahead of each migration wave</td><td>Ongoing</td><td>Customer ITSM</td></tr>
+<tr><td>R3</td><td>NSX policy sign-off</td><td>Security team review and approval of DFW rules</td><td>Week 7</td><td>Customer CISO</td></tr>
+<tr><td>R4</td><td>VM application owner availability</td><td>Application owners must be reachable during migration windows</td><td>Weeks 10–13</td><td>Customer App Teams</td></tr>
+</tbody></table>
+
+<h2>9. Out of Scope</h2>
+<table><thead><tr><th>#</th><th>Item</th><th>Rationale</th><th>How to Add</th></tr></thead><tbody>
+<tr><td>1</td><td>Application-layer testing</td><td>Customer application teams own app validation</td><td>Separate SOW addendum</td></tr>
+<tr><td>2</td><td>EMC storage migration</td><td>Storage team scope managed separately</td><td>Separate storage engagement</td></tr>
+<tr><td>3</td><td>Physical network infrastructure</td><td>NSX scope is overlay only</td><td>Change order</td></tr>
+<tr><td>4</td><td>Offshore delivery</td><td>Customer requirement — no offshore resources</td><td>Not available per customer mandate</td></tr>
+</tbody></table>
+
+<h2>10. Risk Register</h2>
+<table><thead><tr><th>#</th><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th><th>Owner</th></tr></thead><tbody>
+<tr><td>1</td><td>Hardware VCF certification gap</td><td>Medium</td><td>High</td><td>Run compatibility check Week 1; escalate to VMware if uncertified</td><td>Principal Architect</td></tr>
+<tr><td>2</td><td>Change management delays migration</td><td>High</td><td>Medium</td><td>Front-load submissions; build 2-week buffer into schedule</td><td>TPM</td></tr>
+<tr><td>3</td><td>Storage team resistance to vSAN</td><td>Medium</td><td>Medium</td><td>Executive sponsor aligns storage team before kickoff</td><td>Customer CTO</td></tr>
+<tr><td>4</td><td>NSX skills gap causes DFW delays</td><td>Medium</td><td>Medium</td><td>NSX fundamentals training in Phase 1; architect embedded during policy design</td><td>Network Engineer</td></tr>
+<tr><td>5</td><td>Previous overrun perception risk</td><td>Low</td><td>High</td><td>Weekly steering committee with VP sign-off; milestone dashboard shared weekly</td><td>TPM</td></tr>
+</tbody></table>
+
+<h2>11. Team Structure</h2>
+<table><thead><tr><th>Role</th><th>Responsibilities</th><th>Allocation</th><th>Location</th></tr></thead><tbody>
+<tr><td><strong>Principal Architect</strong></td><td>Engagement lead, VCF architecture, DR design, customer exec interface</td><td>100% Phases 1–2, 50% Phase 3</td><td>On-site NY</td></tr>
+<tr><td><strong>Network Engineer</strong></td><td>NSX policy design and implementation, vSAN networking</td><td>50% Phase 1, 100% Phase 2</td><td>On-site NY/NJ</td></tr>
+<tr><td><strong>Migration Specialist</strong></td><td>Wave planning, runbook authoring, VM migration execution</td><td>25% Phase 1, 50% Phase 2, 100% Phase 3</td><td>On-site NY</td></tr>
+<tr><td><strong>TPM (Technical Program Manager)</strong></td><td>Schedule management, change management coordination, status reporting</td><td>50% all phases</td><td>Remote + on-site as needed</td></tr>
+</tbody></table>
+
+<h2>12. Open Items</h2>
+<table><thead><tr><th>#</th><th>Item</th><th>Decision Required</th><th>Owner</th><th>Due Date</th></tr></thead><tbody>
+<tr><td>1</td><td>Dell hardware VCF certification</td><td>Confirm BOM against VMware HCL</td><td>Customer Infrastructure</td><td>Week 1</td></tr>
+<tr><td>2</td><td>VMware license counts and quote</td><td>Purchase order before Phase 1 start</td><td>VMware Account Team</td><td>Pre-kickoff</td></tr>
+<tr><td>3</td><td>Change management process review</td><td>ITSM team engagement and approval cycle confirmed</td><td>Customer ITSM</td><td>Week 1</td></tr>
+</tbody></table>
+
+<h2>13. Commercial Terms</h2>
+<table><thead><tr><th>Term</th><th>Details</th></tr></thead><tbody>
+<tr><td>Engagement Model</td><td>Fixed fee — scope changes require written change order</td></tr>
+<tr><td>Payment Schedule</td><td>25% at kickoff · 25% at M1 · 25% at M3 · 25% at M5</td></tr>
+<tr><td>Travel &amp; Expenses</td><td>Billed at cost, pre-approved, capped at 8% of engagement value</td></tr>
+<tr><td>Change Order Process</td><td>Written CO required for scope changes; 5 business day approval cycle</td></tr>
+<tr><td>Cancellation Notice</td><td>30 calendar days written notice; fees owed for work completed</td></tr>
+<tr><td>Warranty Period</td><td>30-day hypercare included; defects in delivered work remediated at no charge</td></tr>
+</tbody></table>
+
+<h2>14. Document Control</h2>
+<table><thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Changes</th></tr></thead><tbody>
+<tr><td>1.0</td><td>June 2026</td><td>Daniel Mazzini, Principal Architect</td><td>Initial draft — generated by AI SOW Orchestrator</td></tr>
+</tbody></table>
+<p class="disclaimer">This Statement of Work is a draft for review and is subject to legal review, customer negotiation, and final approval before execution. Commercial terms, pricing, and signatures are placeholders. Generated by AI SOW Orchestrator · Daniel Mazzini · Principal Architect &amp; Senior TPM.</p>`;
+
+// ─── SCENARIOS ───────────────────────────────────────────────────────────────
+const SCENARIOS = {
+  vcf: { type:'Private Cloud Deployment (VCF)', size:'Large ($500K–$2M)', industry:'Financial Services',
+    notes:`Customer: Global investment bank, 8000 employees, NY and London DCs.\nMeeting: CTO, VP Infrastructure, Network Architect, Storage Lead.\n\nPain points:\n- vSphere 6.7 EOL approaching, panicking about support\n- 3 separate teams managing compute, network, storage — no unified ops\n- DR site in NJ is manual, last test failed 18 months ago\n- Audit found inconsistent security policy enforcement\n- Board wants private cloud by end of fiscal year — 9 months\n\nWhat they want:\n- VCF on 3 existing Dell PowerEdge nodes + 6 new nodes\n- NSX microsegmentation from day 1 — compliance requirement\n- vSAN stretched cluster for DC to DC DR\n- Unified SDDC Manager dashboard\n- Migration of 180 VMs from legacy environment\n\nConstraints:\n- Cannot take production down on weekdays\n- Security team must approve NSX policy before any traffic flows\n- All work through change management — 2 week approval cycle\n- Budget: $1.2M hardware + $400K services\n- No offshore delivery\n\nTimeline: Go-live by October 31. Board presentation Nov 1.\n\nOpen items:\n- Dell hardware VCF certified? TBD\n- License counts TBD\n- Change management process unclear` },
+  nsx: { type:'Network Security Hardening (NSX)', size:'Medium ($150K–$500K)', industry:'Healthcare',
+    notes:`Customer: Regional hospital network, 4 hospitals, 12000 patients/day.\nMeeting: CISO, Network Director, Compliance Officer.\n\nCurrent state:\n- NSX-T deployed 2 years ago but DFW never turned on\n- Flat network between clinical and admin systems — compliance flagged\n- Two ransomware incidents in 18 months — second cost $2.1M downtime\n- No east-west visibility\n- HIPAA audit coming Q2\n\nWhat they want:\n- Turn on NSX DFW across all 4 hospital locations\n- Security groups by workload type (clinical, admin, IoT medical devices)\n- vDefend ATP for east-west threat detection\n- HIPAA audit documentation\n- Training for 2-person security team\n\nConstraints:\n- Zero downtime — hospitals cannot go dark\n- Epic EHR vendor must approve network changes — adds 3 weeks\n- Medical IoT devices cannot be patched or taken offline\n- Budget: $320K firm\n- Weekly status to CISO\n\nTimeline: Complete before Q2 HIPAA audit — 14 weeks.` },
+  telco: { type:'Telco NFV Transformation', size:'Enterprise ($2M+)', industry:'Telco / CSP',
+    notes:`Customer: Tier 2 regional carrier, 3M subscribers, 8 states.\nAttendees: CTO, VP Network Engineering, Head of OSS/BSS, 2 architects.\n\nContext:\n- Physical network infrastructure — MPLS, physical routers at 120 sites\n- 5G rollout planned — current infrastructure cannot support it\n- OpenStack POC failed 18 months ago — political scar tissue\n- Board budget: $4M over 2 years\n\nScope:\n- Phase 1: NFV on OpenStack at 2 core DCs (Dallas, Atlanta)\n- Phase 2: VNF onboarding — vEPC, vIMS, vFirewall\n- Phase 3: SD-WAN overlay at 40 sites\n- OSS/BSS integration (Amdocs BSS)\n\nRequirements:\n- 99.999% HA for core network functions\n- ETSI NFV compliance\n- Ericsson equipment coexistence during 3-year phase-out\n- vEPC: 500K simultaneous sessions by Phase 2\n\nTimeline: Phase 1 in 9 months. 5G ready in 18 months.` },
+  sase: { type:'SASE / SD-WAN Migration', size:'Medium ($150K–$500K)', industry:'Manufacturing',
+    notes:`Customer: Auto parts manufacturer, 6 plants (US and Mexico), 3500 employees.\nMeeting: IT Director, Network Manager, Plant IT Lead.\n\nSituation:\n- Legacy MPLS WAN — expensive, inflexible, 18 month lead time for circuits\n- Remote work VPN not designed for current load — complaints daily\n- Recent acquisition added 2 Mexico plants with different architecture\n- M365 and SAP S/4HANA migration underway — latency from backhauling M365 killing UX\n\nWhat they want:\n- SD-WAN at all 6 plants + HQ\n- SASE for remote users — replace legacy VPN\n- Direct internet at plants for M365/Salesforce\n- Consistent security policy across all locations including Mexico\n- VMware SASE or Palo Alto Prisma — want recommendation\n\nConstraints:\n- Mexico plants: local IT staff, no network engineers\n- SAP cutover in 4 months — network must be stable before\n- Production lines cannot have network interruption during business hours\n- Budget: $380K services\n\nTimeline: All 6 locations live in 6 months.` },
+  modernization: { type:'Cloud Modernization Assessment', size:'Small (under $150K)', industry:'Technology',
+    notes:`Customer: Mid-size SaaS company, 800 employees, Series C.\nAttendees: CTO, VP Engineering, Head of Platform, FinOps Lead.\n\nContext:\n- AWS for 5 years — tech debt accumulated\n- Monthly bill: $840K/month, climbing 20% YoY\n- 180 microservices, 60% still on EC2\n- No standards, no governance — multiple teams deployed independently\n- FinOps lead hired 3 months ago, overwhelmed\n\nWhat they want:\n- Full AWS environment assessment\n- Top 10 optimization opportunities with savings estimates\n- Modernization roadmap: containerize vs managed services vs sunset\n- FinOps operating model — tagging, cost allocation, showback\n- Board presentation in 8 weeks\n\nScope boundaries:\n- Assessment only in Phase 1 — no implementation\n- All 3 AWS accounts in scope (prod, staging, dev)\n- Kubernetes optimization in scope\n- Snowflake data warehouse out of scope\n- Security assessment out of scope\n\nBudget: $95K fixed fee. Timeline: 8 weeks.` },
+  noc: { type:'NOC Automation Program', size:'Large ($500K–$2M)', industry:'Telco / CSP',
+    notes:`Customer: Large cable MSO, 15M subscribers, 12 regional NOCs.\nAttendees: SVP Network Operations, NOC Director, Tools & Automation Lead, 3 NOC Managers.\n\nCurrent state:\n- 12 NOCs operating independently — no unified tooling\n- L1 analysts spending 70% of time on manual tasks\n- MTTR for P2: 4.2 hours. Target: 90 minutes.\n- 180 alarms/day/NOC — 80% are noise\n- Each NOC has its own escalation matrix\n\nWhat they want:\n- Alarm correlation and noise reduction — target 60% reduction\n- Automated runbook execution for top 20 incident types\n- Unified ticketing integration across 12 NOCs (ServiceNow)\n- L1 decision support — AI-assisted triage\n- Real-time dashboards + MTTR trends\n\nEnvironment:\n- SolarWinds, Nagios, custom scripts — all 3 in use\n- ServiceNow (Tokyo)\n- Cisco 60%, Juniper 30%, Nokia 10%\n\nConstraints:\n- Cannot replace SolarWinds or Nagios — not negotiable\n- Human approval required for all automation for first 6 months\n- Union concerns about automation — change management workstream needed\n\nBudget: $1.4M Phase 1. Timeline: Phase 1 in 6 months.` }
+};
+
+// ─── MODE MANAGEMENT ─────────────────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  ['demo','claude','openai'].forEach(m => {
+    const el = document.getElementById('mode-' + m);
+    if (!el) return;
+    el.className = 'prov-pill' + (m === mode ? (m === 'openai' ? ' active-openai' : ' active') : '');
+  });
+  const kg = document.getElementById('key-group');
+  const st = document.getElementById('mode-status');
+  if (mode === 'demo') {
+    if (kg) kg.style.display = 'none';
+    if (st) { st.className = 'status-bar'; st.innerHTML = '<i class="ti ti-player-play"></i><span><strong>Demo Mode</strong> \u2014 No API key needed. Full 3-agent simulation.</span>'; }
+  } else if (mode === 'claude') {
+    if (kg) kg.style.display = '';
+    document.getElementById('api-key').placeholder = 'sk-ant-...';
+    const saved = localStorage.getItem('sow_claude_key');
+    if (saved) document.getElementById('api-key').value = saved;
+    if (st) { st.className = 'status-bar'; st.innerHTML = '<i class="ti ti-sparkles"></i><span><strong>Claude API</strong> \u2014 Enter your Anthropic key (sk-ant-...)</span>'; }
+  } else {
+    if (kg) kg.style.display = '';
+    document.getElementById('api-key').placeholder = 'sk-...';
+    const saved = localStorage.getItem('sow_openai_key');
+    if (saved) document.getElementById('api-key').value = saved;
+    if (st) { st.className = 'status-bar openai-status'; st.innerHTML = '<i class="ti ti-brand-openai"></i><span><strong>OpenAI API</strong> \u2014 Enter your OpenAI key (sk-...)</span>'; }
+  }
+}
+
+function saveKey() {
+  const k = document.getElementById('api-key').value.trim();
+  const st = document.getElementById('mode-status');
+  if (currentMode === 'claude') {
+    if (!k.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic key (sk-ant-...)'); return; }
+    localStorage.setItem('sow_claude_key', k);
+    if (st) { st.className = 'status-bar'; st.innerHTML = '<i class="ti ti-shield-check"></i><span><strong>Claude connected</strong> \u2014 claude-haiku-4-5 ready</span>'; }
+  } else {
+    if (!k.startsWith('sk-')) { alert('Please enter a valid OpenAI key (sk-...)'); return; }
+    localStorage.setItem('sow_openai_key', k);
+    if (st) { st.className = 'status-bar openai-status'; st.innerHTML = '<i class="ti ti-shield-check"></i><span><strong>OpenAI connected</strong> \u2014 gpt-4o-mini ready</span>'; }
+  }
+}
+
+function getApiKey() {
+  if (currentMode === 'claude') return localStorage.getItem('sow_claude_key') || document.getElementById('api-key')?.value?.trim() || '';
+  if (currentMode === 'openai') return localStorage.getItem('sow_openai_key') || document.getElementById('api-key')?.value?.trim() || '';
+  return 'demo';
+}
+
+window.addEventListener('load', () => {
+  setMode('demo');
+  const sc = localStorage.getItem('sow_claude_key');
+  const so = localStorage.getItem('sow_openai_key');
+  if (sc) document.getElementById('api-key').value = sc;
+  else if (so) document.getElementById('api-key').value = so;
+});
+
+// ─── SCENARIO MANAGEMENT ─────────────────────────────────────────────────────
+function loadScenario() {
+  const key = document.getElementById('scenario-select').value;
+  if (!key) { alert('Please select a scenario first.'); return; }
+  const sc = SCENARIOS[key];
+  if (!sc) return;
+  document.getElementById('discovery-notes').value = sc.notes;
+  document.getElementById('eng-type').value = sc.type;
+  document.getElementById('eng-size').value = sc.size;
+  document.getElementById('customer-industry').value = sc.industry;
+}
+
+function clearAll() {
+  document.getElementById('discovery-notes').value = '';
+  document.getElementById('run-status').textContent = '';
+  document.getElementById('btn-print-ghost').style.display = 'none';
+  lastBrief = null; lastSOW = '';
+  const rp = document.getElementById('right-panel');
+  rp.innerHTML = '<div class="empty-state">' +
+    '<div class="empty-icon"><i class="ti ti-file-certificate"></i></div>' +
+    '<div class="empty-title">Ready to generate your SOW</div>' +
+    '<div class="empty-desc">Select a provider, load a scenario or paste your own notes, then click Generate SOW.</div>' +
+    '</div>';
+}
+
+// ─── JSON REPAIR ─────────────────────────────────────────────────────────────
+function repairAndParseJSON(raw) {
+  const first = raw.indexOf('{');
+  const last  = raw.lastIndexOf('}');
+  if (first === -1 || last === -1) throw new Error('No JSON object found in API response');
+  let s = raw.substring(first, last + 1);
+  // Attempt 1
+  try { return JSON.parse(s); } catch(e1) {}
+  // Attempt 2: strip control chars
+  try { return JSON.parse(s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')); } catch(e2) {}
+  // Attempt 3: replace bare newlines
+  try {
+    return JSON.parse(s.replace(/(\"(?:[^\"\\]|\\.)*\")|(\n)/g, (m, str, nl) => str || '\\n'));
+  } catch(e3) {}
+  // Attempt 4: aggressive
+  try { return JSON.parse(s.replace(/\r?\n|\t/g, ' ').replace(/\s{2,}/g, ' ')); } catch(e4) {}
+  throw new Error('Malformed JSON from API — please try again.');
+}
+
+// ─── API CALLS ───────────────────────────────────────────────────────────────
+async function callClaude(prompt, maxTokens, apiKey) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey,
+               'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: maxTokens,
+                           messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `Claude API error ${res.status}`); }
+  const data = await res.json();
+  return data.content?.find(b => b.type === 'text')?.text || '';
+}
+
+async function callOpenAI(prompt, maxTokens, apiKey) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: maxTokens,
+                           messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `OpenAI API error ${res.status}`); }
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || '';
+}
+
+async function callProvider(prompt, maxTokens, apiKey) {
+  if (currentMode === 'claude') return callClaude(prompt, maxTokens, apiKey);
+  if (currentMode === 'openai') return callOpenAI(prompt, maxTokens, apiKey);
+  throw new Error('Invalid provider mode');
+}
+
+// ─── AGENT 1: DISCOVERY ANALYST ──────────────────────────────────────────────
+async function runAgent1(notes, engType, engSize, industry, apiKey) {
+  const safeNotes = notes
+    .replace(/\\/g, '/')
+    .replace(/"/g, "'")
+    .replace(/\r\n/g, ' | ')
+    .replace(/\n/g, ' | ')
+    .replace(/\t/g, ' ')
+    .replace(/[\x00-\x1F\x7F]/g, '');
+
+  const prompt = `You are a Senior Solutions Architect and Technical Program Manager with 20+ years structuring professional services engagements.
+
+CRITICAL JSON RULES: Return ONLY a raw JSON object. No markdown, no backticks, no explanation. Every string value must be on a single line with no line breaks inside it. Use single quotes inside strings. Start with { and end with }.
+
+ENGAGEMENT TYPE: ${engType}
+ENGAGEMENT SIZE: ${engSize}
+CUSTOMER INDUSTRY: ${industry}
+
+RAW DISCOVERY NOTES:
+${safeNotes}
+
+Return exactly this JSON structure — all string values SHORT and on ONE LINE:
+{
+  "engagement_objective": "one sentence describing success",
+  "client_profile": "two sentences on customer and context",
+  "in_scope": ["workstream 1", "workstream 2", "workstream 3"],
+  "out_of_scope": ["excluded item 1", "excluded item 2"],
+  "deliverables": [
+    {"name": "deliverable name", "description": "what it includes", "format": "document or workshop or implementation"}
+  ],
+  "phases": [
+    {"phase": "phase name", "duration": "e.g. 4 weeks", "activities": ["activity 1", "activity 2"]}
+  ],
+  "assumptions": ["assumption 1", "assumption 2", "assumption 3"],
+  "customer_responsibilities": ["responsibility 1", "responsibility 2"],
+  "dependencies": ["dependency 1", "dependency 2"],
+  "success_criteria": ["criterion 1", "criterion 2"],
+  "risks": [
+    {"risk": "risk title", "mitigation": "how to address it"}
+  ],
+  "estimated_duration": "total duration e.g. 14 weeks",
+  "team_structure": "recommended team composition",
+  "open_items": ["open item 1", "open item 2"]
+}`;
+
+  const raw = await callProvider(prompt, 4000, apiKey);
+  if (!raw) throw new Error('Agent 1 returned an empty response');
+  return repairAndParseJSON(raw);
+}
+
+// ─── AGENT 2: SCOPE VALIDATOR ────────────────────────────────────────────────
+async function runAgent2(brief, engType, engSize, industry, apiKey) {
+  const prompt = `You are a Senior QA Architect reviewing a professional services requirements brief before SOW drafting.
+
+Return ONLY raw JSON — no markdown, no backticks. All string values on ONE LINE. Single quotes inside strings. Start with { end with }.
+
+ENGAGEMENT TYPE: ${engType}
+ENGAGEMENT SIZE: ${engSize}
+CUSTOMER INDUSTRY: ${industry}
+
+BRIEF TO VALIDATE:
+${JSON.stringify(brief)}
+
+Check for: contradictions, missing items, ambiguities, unrealistic elements, scope gaps.
+
+Return exactly this JSON — all string values SHORT and on ONE LINE:
+{
+  "decision": "approved",
+  "validation_summary": "one sentence summary",
+  "quality_score": 85,
+  "issues": [
+    {"type": "Contradiction", "title": "short title", "description": "what the problem is", "recommendation": "what to fix"}
+  ],
+  "warnings": [
+    {"type": "Risk", "title": "short title", "description": "what to watch for"}
+  ],
+  "approved_items": ["solid item 1", "solid item 2", "solid item 3"]
+}
+
+Decision: "rejected" if critical issues, "approved_with_warnings" if only warnings, "approved" if clean.
+Maximum 4 issues, 4 warnings, 4 approved_items.`;
+
+  const raw = await callProvider(prompt, 3000, apiKey);
+  if (!raw) throw new Error('Agent 2 returned an empty response');
+  return repairAndParseJSON(raw);
+}
+
+// ─── AGENT 3: SOW DRAFTER ────────────────────────────────────────────────────
+async function runAgent3(brief, validation, engType, engSize, industry, apiKey) {
+  const validationCtx = (validation.warnings || []).length
+    ? '\n\nVALIDATION NOTES (address in SOW):\n' + validation.warnings.map(w => `- ${w.title}: ${w.description}`).join('\n')
+    : '';
+
+  const prompt = `You are a Senior Principal Consultant with 20+ years writing Statements of Work for VMware, Dell EMC, Juniper, and Nokia. Write a complete SOW using the validated brief below.
+
+Return clean HTML using only: h1, h2, h3, p, ul, li, table, thead, tbody, tr, th, td, strong, em. No markdown. No CSS. No scripts. Start directly with <h1>.
+
+ENGAGEMENT TYPE: ${engType}
+ENGAGEMENT SIZE: ${engSize}
+CUSTOMER INDUSTRY: ${industry}
+
+VALIDATED BRIEF:
+${JSON.stringify(brief, null, 2)}${validationCtx}
+
+STRUCTURE — follow exactly:
+<h1>[Engagement Type] — Statement of Work</h1>
+<p><strong>Version:</strong> 1.0 | <strong>Date:</strong> [date] | <strong>Status:</strong> Draft for Review</p>
+
+<h2>1. Engagement Overview</h2>
+[2 sentences context. Table: Engagement Type, Industry, Size, Duration, Delivery Model, Engagement Lead]
+
+<h2>2. Engagement Objective</h2>
+[2 sentences — specific with technology names and business outcome]
+
+<h2>3. Scope of Work</h2>
+[1 sentence. Table: Workstream | Description | Key Activities | In Scope]
+
+<h2>4. Deliverables</h2>
+[1 sentence. Table: # | Deliverable | Description | Format | Qty | Est. Effort (hrs) — final row: TOTAL | | | | | XX hrs]
+
+<h2>5. Work Breakdown &amp; Schedule</h2>
+[1 sentence. Table: Phase | Activity | Owner | Duration | Hours — subtotals per phase, TOTAL row]
+
+<h2>6. Milestones &amp; Acceptance</h2>
+[Table: # | Milestone | Acceptance Criteria | Target Week | Owner]
+
+<h2>7. Assumptions</h2>
+[Table: # | Assumption | Dependency | Risk if Invalid]
+
+<h2>8. Customer Responsibilities</h2>
+[Table: # | Responsibility | Details | Required By | Owner]
+
+<h2>9. Out of Scope</h2>
+[Table: # | Item | Rationale | How to Add]
+
+<h2>10. Risk Register</h2>
+[Table: # | Risk | Probability | Impact | Mitigation | Owner]
+
+<h2>11. Team Structure</h2>
+[Table: Role | Responsibilities | Allocation | Location]
+
+<h2>12. Open Items</h2>
+[Table: # | Item | Decision Required | Owner | Due Date]
+
+<h2>13. Commercial Terms</h2>
+[Table: Term | Details — rows: Engagement Model, Payment Schedule, Travel & Expenses, Change Order Process, Cancellation Notice, Warranty Period]
+
+<h2>14. Document Control</h2>
+[Table: Version | Date | Author | Changes — one row for v1.0]`;
+
+  const raw = await callProvider(prompt, 8000, apiKey);
+  return raw || '';
+}
+
+
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentMode = 'demo';
+let lastBrief   = null;
+let lastSOW     = '';
+
+// ─── TAB MANAGEMENT ───────────────────────────────────────────────────────────
+function showTabBar() {
+  const bar = document.getElementById('tabs-bar');
+  bar.classList.add('visible');
+  const empty = document.getElementById('panel-empty');
+  if (empty) empty.style.display = 'none';
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.top = '98px');
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab-panel').forEach(p =>
+    p.classList.toggle('active', p.id === 'panel-' + tabId));
+}
+
+function enableTab(tabId, autoSwitch) {
+  const btn = document.getElementById('tab-' + tabId);
+  if (btn) btn.disabled = false;
+  if (autoSwitch) switchTab(tabId);
+}
+
+// ─── PIPELINE UI ──────────────────────────────────────────────────────────────
+const AGENT_DEFS = [
+  {num:1,name:'Discovery Analyst',role:'Reads raw notes \u00b7 structures scope \u00b7 maps deliverables \u00b7 identifies risks'},
+  {num:2,name:'Scope Validator',  role:'Reviews brief \u00b7 checks for gaps \u00b7 autonomous approve/reject decision'},
+  {num:3,name:'SOW Drafter',      role:'Runs only if Agent 2 approves \u00b7 writes complete Statement of Work'}
+];
+
+function showPipeline() {
+  showTabBar();
+  ['brief','validation','sow'].forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    if (btn) btn.disabled = true;
+  });
+  switchTab('pipeline');
+  const panel = document.getElementById('panel-pipeline');
+  const agentRows = AGENT_DEFS.map(a => `
+    <div class="ag-card" id="ag-card-${a.num}">
+      <div class="ag-num" id="ag-num-${a.num}">${a.num}</div>
+      <div class="ag-info">
+        <div class="ag-name" id="ag-name-${a.num}">${a.name}</div>
+        <div class="ag-role">${a.role}</div>
+        <div class="ag-status" id="ag-status-${a.num}">Waiting...</div>
+        <div class="ag-progress"><div class="ag-progress-bar" id="ag-progress-${a.num}"></div></div>
+      </div>
+    </div>`).join('');
+  panel.innerHTML = `
+    <div class="pipeline-wrap">
+      <div class="pipeline-header">
+        <i class="ti ti-cpu"></i>
+        <span class="pipeline-header-title">3-Agent SOW Orchestration</span>
+        <span class="pipeline-header-sub" id="pipeline-sub">Initializing...</span>
+      </div>
+      <div class="pipeline-agents">${agentRows}</div>
+    </div>`;
+}
+
+function setPipelineSub(text) {
+  const el = document.getElementById('pipeline-sub');
+  if (el) el.textContent = text;
+}
+
+function setAgentState(num, state, statusText) {
+  const card  = document.getElementById(`ag-card-${num}`);
+  const numEl = document.getElementById(`ag-num-${num}`);
+  const statEl= document.getElementById(`ag-status-${num}`);
+  if (!card) return;
+  card.className = 'ag-card' + (state ? ' ag-' + state : '');
+  if      (state === 'active') numEl.innerHTML = '<span class="spinner-gold"></span>';
+  else if (state === 'done')   numEl.innerHTML = '<i class="ti ti-check" style="font-size:14px"></i>';
+  else if (state === 'warn')   numEl.innerHTML = '<i class="ti ti-alert-triangle" style="font-size:13px"></i>';
+  else if (state === 'error')  numEl.innerHTML = '<i class="ti ti-x" style="font-size:14px"></i>';
+  else numEl.innerHTML = String(num);
+  if (statEl && statusText) statEl.textContent = statusText;
+}
+
+function animateProgress(num, pct, ms) {
+  const bar = document.getElementById(`ag-progress-${num}`);
+  if (!bar) return;
+  const start = performance.now(), from = parseFloat(bar.style.width) || 0;
+  const tick = now => {
+    const r = Math.min((now - start) / ms, 1);
+    bar.style.width = (from + (pct - from) * r) + '%';
+    if (r < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// ─── RENDER BRIEF ─────────────────────────────────────────────────────────────
+function renderBrief(brief) {
+  document.getElementById('panel-brief').innerHTML = `
+    <div class="brief-objective">${brief.engagement_objective||''}</div>
+    <div class="brief-grid">
+      <div>
+        <div class="brief-section"><div class="brief-section-title">In scope</div>
+          ${(brief.in_scope||[]).map(i=>`<div class="brief-item">${i}</div>`).join('')}</div>
+        <div class="brief-section"><div class="brief-section-title">Deliverables</div>
+          ${(brief.deliverables||[]).map(d=>`<div class="brief-item"><strong>${d.name}</strong> \u2014 ${d.description}</div>`).join('')}</div>
+        <div class="brief-section"><div class="brief-section-title">Phases</div>
+          ${(brief.phases||[]).map(p=>`<div class="brief-item"><strong>${p.phase}</strong> (${p.duration})</div>`).join('')}</div>
+        <div class="brief-section"><div class="brief-section-title">Success criteria</div>
+          ${(brief.success_criteria||[]).map(s=>`<div class="brief-item">${s}</div>`).join('')}</div>
+      </div>
+      <div>
+        <div class="brief-section"><div class="brief-section-title">Out of scope</div>
+          ${(brief.out_of_scope||[]).map(i=>`<div class="brief-item">${i}</div>`).join('')}</div>
+        <div class="brief-section"><div class="brief-section-title">Assumptions</div>
+          ${(brief.assumptions||[]).map(a=>`<div class="brief-item">${a}</div>`).join('')}</div>
+        <div class="brief-section"><div class="brief-section-title">Customer responsibilities</div>
+          ${(brief.customer_responsibilities||[]).map(r=>`<div class="brief-item">${r}</div>`).join('')}</div>
+        <div class="brief-section"><div class="brief-section-title">Risks</div>
+          ${(brief.risks||[]).map(r=>`<div class="risk-item"><strong>${r.risk}</strong> \u2014 ${r.mitigation}</div>`).join('')}</div>
+      </div>
+    </div>
+    ${(brief.open_items||[]).length?`<div class="brief-section"><div class="brief-section-title">Open items</div>${brief.open_items.map(o=>`<div class="brief-item">${o}</div>`).join('')}</div>`:''}`;
+  enableTab('brief', true);
+}
+
+// ─── RENDER VALIDATION ────────────────────────────────────────────────────────
+function renderValidation(v, decision) {
+  const issues=v.issues||[], warnings=v.warnings||[], approved=v.approved_items||[];
+  const cfgMap = {
+    rejected:              {cls:'rejected',icon:'ti-circle-x',    iconCol:'var(--red)',
+      title:`Scope rejected \u2014 ${issues.length} issue${issues.length!==1?'s':''} must be resolved`,
+      titleCol:'var(--red)', hint:'Edit discovery notes to address issues, then regenerate.'},
+    approved_with_warnings:{cls:'warnings',icon:'ti-alert-triangle',iconCol:'var(--amber)',
+      title:`Scope approved with ${warnings.length} warning${warnings.length!==1?'s':''}`,
+      titleCol:'var(--amber)', hint:'Agent 3 will address these in the SOW risk register.'},
+    approved:              {cls:'approved',icon:'ti-circle-check',iconCol:'var(--green)',
+      title:`Scope approved \u2014 quality score ${v.quality_score||0}/100`,
+      titleCol:'var(--green)', hint:'All scope items validated. SOW drafting in progress.'}
+  };
+  const cfg = cfgMap[decision]||cfgMap.approved;
+  let inner = `<div class="val-panel ${cfg.cls}">
+    <div class="val-header">
+      <i class="ti ${cfg.icon}" style="font-size:20px;color:${cfg.iconCol}"></i>
+      <span class="val-title" style="color:${cfg.titleCol}">${cfg.title}</span>
+    </div>
+    <p class="val-summary">${v.validation_summary||''}</p>
+    <p class="val-hint">${cfg.hint}</p>`;
+  issues.forEach(i=>{inner+=`<div class="val-issue"><div class="issue-type">${i.type}</div><div class="issue-desc">${i.title}</div><div class="issue-rec">${i.description} \u2014 <strong>Fix:</strong> ${i.recommendation}</div></div>`;});
+  warnings.forEach(w=>{inner+=`<div class="val-warning"><div class="warning-type">${w.type}</div><div class="issue-desc">${w.title}</div><div class="issue-rec">${w.description}</div></div>`;});
+  if (approved.length && decision!=='rejected')
+    inner+=`<div style="font-size:11px;color:var(--muted);margin-top:10px"><strong style="color:var(--body)">Validated items:</strong> ${approved.join(' \u00b7 ')}</div>`;
+  inner+='</div>';
+  document.getElementById('panel-validation').innerHTML = inner;
+  enableTab('validation', false);
+}
+
+// ─── RENDER SOW ───────────────────────────────────────────────────────────────
+function renderSOW(sowHTML) {
+  document.getElementById('panel-sow').innerHTML = `
+    <div class="sow-toolbar">
+      <i class="ti ti-file-certificate"></i>
+      <span class="sow-toolbar-title">Statement of Work \u2014 Agent 3 Output</span>
+      <button class="btn-print" onclick="window.print()"><i class="ti ti-printer"></i> Print / PDF</button>
+      <button class="btn-copy" onclick="copySOW()" style="margin-left:6px"><i class="ti ti-copy"></i> Copy</button>
+    </div>
+    <div class="sow-doc" id="sow-content">${sowHTML}
+      <p class="disclaimer">Draft for review. Subject to legal review and final approval before execution. Generated by AI SOW Orchestrator \u00b7 Daniel Mazzini \u00b7 Principal Architect &amp; Senior TPM.</p>
+    </div>`;
+  enableTab('sow', true);
+  document.getElementById('btn-print-ghost').style.display = '';
+}
+
+function copySOW() {
+  const el = document.getElementById('sow-content');
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText).then(()=>alert('SOW copied. Paste into Word or Google Docs.')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=el.innerText;
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);alert('SOW copied to clipboard.');
+  });
+}
+
+// ─── CLEAR ────────────────────────────────────────────────────────────────────
+function clearAll() {
+  document.getElementById('discovery-notes').value = '';
+  document.getElementById('run-status').textContent = '';
+  document.getElementById('btn-print-ghost').style.display = 'none';
+  lastBrief = null; lastSOW = '';
+  document.getElementById('tabs-bar').classList.remove('visible');
+  document.querySelectorAll('.tab-panel').forEach(p=>{
+    p.classList.remove('active'); p.innerHTML=''; p.style.top='52px';
+  });
+  const empty = document.getElementById('panel-empty');
+  if (empty) empty.style.display = '';
+  ['brief','validation','sow'].forEach(t=>{
+    const btn=document.getElementById('tab-'+t);
+    if(btn) btn.disabled=true;
+  });
+  const pipeBtn = document.querySelector('[data-tab="pipeline"]');
+  if (pipeBtn) pipeBtn.classList.add('active');
+}
+
+// ─── DEMO MODE ────────────────────────────────────────────────────────────────
+async function runDemoMode() {
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  showPipeline();
+  setPipelineSub('Running demo simulation...');
+
+  setAgentState(1,'active','Reading discovery notes and structuring requirements brief...');
+  animateProgress(1,40,500); await delay(700);
+  setAgentState(1,'active','Identifying workstreams, deliverables, and risks...');
+  animateProgress(1,75,600); await delay(700);
+  animateProgress(1,98,400); await delay(500);
+  lastBrief = DEMO_BRIEF;
+  setAgentState(1,'done',`Brief complete \u00b7 ${DEMO_BRIEF.in_scope.length} workstreams \u00b7 ${DEMO_BRIEF.deliverables.length} deliverables \u00b7 ${DEMO_BRIEF.risks.length} risks`);
+  renderBrief(DEMO_BRIEF);
+  setPipelineSub('Agent 1 complete \u00b7 Agent 2 validating...');
+  await delay(400);
+
+  setAgentState(2,'active','Reviewing scope brief for contradictions and gaps...');
+  animateProgress(2,45,600); await delay(700);
+  setAgentState(2,'active','Computing quality score...');
+  animateProgress(2,98,400); await delay(500);
+  const dec = DEMO_VALIDATION.decision;
+  setAgentState(2, dec==='rejected'?'error':dec==='approved_with_warnings'?'warn':'done',
+    `${dec==='approved_with_warnings'?'Approved with warnings':dec==='rejected'?'Rejected':'Approved'} \u00b7 Score: ${DEMO_VALIDATION.quality_score}/100`);
+  renderValidation(DEMO_VALIDATION, dec);
+  if (dec==='rejected') { setAgentState(3,'error','Blocked'); return; }
+  setPipelineSub('Agent 2 approved \u00b7 Agent 3 drafting SOW...');
+  await delay(400);
+
+  setAgentState(3,'active','Drafting Statement of Work from validated brief...');
+  animateProgress(3,25,600); await delay(800);
+  setAgentState(3,'active','Writing scope, deliverables, work breakdown...');
+  animateProgress(3,55,700); await delay(800);
+  setAgentState(3,'active','Completing risk register and commercial terms...');
+  animateProgress(3,90,600); await delay(600);
+  animateProgress(3,99,300); await delay(400);
+  lastSOW = DEMO_SOW;
+  setAgentState(3,'done','SOW complete \u00b7 Click \u201cAgent 3 \u2014 SOW\u201d tab to read full document');
+  renderSOW(DEMO_SOW);
+  setPipelineSub('Complete \u00b7 Click each tab to read agent output');
+}
+
+// ─── LIVE MODE ────────────────────────────────────────────────────────────────
+async function runLiveMode(notes, engType, engSize, industry, apiKey) {
+  showPipeline();
+  setPipelineSub('Connecting to ' + (currentMode==='claude'?'Claude':'OpenAI') + '...');
+  try {
+    setAgentState(1,'active','Reading discovery notes...');
+    animateProgress(1,30,2000);
+    const brief = await runAgent1(notes, engType, engSize, industry, apiKey);
+    lastBrief = brief;
+    animateProgress(1,100,300);
+    setAgentState(1,'done',`Brief complete \u00b7 ${(brief.in_scope||[]).length} workstreams`);
+    renderBrief(brief);
+    setPipelineSub('Agent 1 done \u00b7 Agent 2 validating...');
+
+    setAgentState(2,'active','Validating scope...');
+    animateProgress(2,30,1500);
+    const validation = await runAgent2(brief, engType, engSize, industry, apiKey);
+    const decision = validation.decision||'approved';
+    animateProgress(2,100,300);
+    if (decision==='rejected') {
+      setAgentState(2,'error',`Rejected \u00b7 ${(validation.issues||[]).length} issue(s)`);
+      setAgentState(3,'error','Blocked \u2014 scope rejected');
+      renderValidation(validation,'rejected');
+      setPipelineSub('Rejected \u00b7 Fix notes and regenerate');
+      return;
+    }
+    setAgentState(2,decision==='approved_with_warnings'?'warn':'done',`Score: ${validation.quality_score}/100`);
+    renderValidation(validation, decision);
+    setPipelineSub('Agent 2 approved \u00b7 Agent 3 drafting...');
+
+    setAgentState(3,'active','Drafting SOW...');
+    animateProgress(3,20,2000);
+    const sow = await runAgent3(brief, validation, engType, engSize, industry, apiKey);
+    lastSOW = sow;
+    animateProgress(3,100,300);
+    setAgentState(3,'done','SOW complete \u00b7 Click Agent 3 \u2014 SOW tab to read');
+    renderSOW(sow);
+    setPipelineSub('Complete \u00b7 Click tabs to read each agent output');
+  } catch(err) {
+    const fa = lastBrief ? (lastSOW?3:2) : 1;
+    setAgentState(fa,'error',err.message);
+    const errEl = document.createElement('div');
+    errEl.className = 'error-box';
+    errEl.innerHTML = `<strong>Error in Agent ${fa}:</strong> ${err.message}`;
+    document.getElementById('panel-pipeline').appendChild(errEl);
+    setPipelineSub(`Error in Agent ${fa}`);
+  }
+}
+
+// ─── MAIN ENTRY ───────────────────────────────────────────────────────────────
+async function runOrchestrator() {
+  const notes = document.getElementById('discovery-notes').value.trim();
+  const btn   = document.getElementById('run-btn');
+  const status= document.getElementById('run-status');
+  if (currentMode!=='demo' && !notes) { alert('Please paste discovery notes or load a scenario.'); return; }
+  if (currentMode!=='demo' && !getApiKey()) {
+    alert(`Please enter your ${currentMode==='claude'?'Anthropic':'OpenAI'} API key and click Connect.`); return;
+  }
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div> Orchestrating...';
+  status.textContent = currentMode==='demo'?'Running demo...':`Calling ${currentMode==='claude'?'Claude':'OpenAI'}...`;
+  lastBrief=null; lastSOW='';
+  document.getElementById('btn-print-ghost').style.display='none';
+  try {
+    if (currentMode==='demo') await runDemoMode();
+    else await runLiveMode(
+      notes,
+      document.getElementById('eng-type').value,
+      document.getElementById('eng-size').value,
+      document.getElementById('customer-industry').value,
+      getApiKey()
+    );
+  } finally {
+    btn.disabled=false;
+    btn.innerHTML='<i class="ti ti-player-play" style="font-size:15px"></i> Generate SOW';
+    status.textContent='';
+  }
+}
+
+</script>
+</body>
+</html>

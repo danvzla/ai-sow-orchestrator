@@ -1,0 +1,22 @@
+Customer: Tier 2 regional carrier, 3M subscribers, 8 states.
+Attendees: CTO, VP Network Engineering, Head of OSS/BSS, 2 network architects.
+
+Context:
+- Running physical network infrastructure — MPLS, physical routers at 120 sites
+- 5G rollout planned for next year — current infrastructure cannot support it
+- OpenStack POC ran 18 months ago, failed — political scar tissue
+- Board approved transformation budget: $4M over 2 years
+
+Scope:
+- Phase 1: NFV infrastructure on OpenStack at 2 core DCs (Dallas and Atlanta)
+- Phase 2: VNF onboarding — vEPC, vIMS, vFirewall (Fortinet)
+- Phase 3: SD-WAN overlay at 40 priority sites
+- OSS/BSS integration in scope — they use Amdocs for BSS
+
+Requirements:
+- 99.999% HA for core network functions
+- ETSI NFV compliance — regulatory requirement
+- Ericsson equipment coexistence during 3-year phase-out
+- vEPC must support 500K simultaneous sessions by Phase 2
+
+Timeline: Phase 1 in 9 months. 5G readiness by 18 months.

@@ -1,0 +1,9 @@
+# ── Required ──────────────────────────────────────────────────
+anthropic>=0.34.0          # Claude API (Agent 1, 2, 3)
+
+# ── Optional but strongly recommended ─────────────────────────
+rich>=13.0.0               # Beautiful terminal output
+python-docx>=1.1.0         # Word document export
+
+# ── Required only if using --provider openai ──────────────────
+openai>=1.40.0             # OpenAI API (gpt-4o-mini)

@@ -1,0 +1,30 @@
+Customer: Global investment bank, 8000 employees, NY and London DCs.
+Meeting attendees: CTO, VP Infrastructure, Network Architect, Storage Lead.
+
+Pain points discussed:
+- Currently on vSphere 6.7, EOL approaching, panicking about support
+- 3 separate teams managing compute, network, storage — no unified ops
+- DR site in NJ is manual, last test failed 18 months ago
+- Audit found inconsistent security policy enforcement across clusters
+- Board wants private cloud by end of fiscal year — 9 months
+
+What they want:
+- VCF on 3 existing Dell PowerEdge nodes + 6 new nodes
+- NSX microsegmentation from day 1 — compliance requirement
+- vSAN stretched cluster for DC to DC DR
+- Unified SDDC Manager dashboard for ops team
+- Migration of 180 VMs from legacy environment
+
+Constraints:
+- Cannot take production systems down on weekdays
+- Security team must approve NSX policy before any traffic flows
+- All work must go through change management — 2 week approval cycle
+- Budget approved: $1.2M hardware + $400K services
+- No offshore delivery
+
+Timeline: Go-live by October 31. Board presentation Nov 1.
+
+Open items:
+- Dell hardware VCF certification — TBD
+- VMware license counts — waiting on quote
+- Change management process — need to loop in ITSM team
