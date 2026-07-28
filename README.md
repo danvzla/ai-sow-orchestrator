@@ -301,6 +301,40 @@ openai >= 1.40.0         # only if using --provider openai
 
 ---
 
+## Architecture and Governance
+
+The solution separates discovery analysis, scope validation, drafting, and human approval. Agent 3 runs only after the validator returns an approved status. The resulting SOW is a draft for commercial, legal, delivery, technical, and customer review.
+
+## Deterministic vs. AI-Generated Outputs
+
+**Deterministic:** pipeline order, validator gate behavior, approval states, required SOW sections, file naming, export behavior, CLI arguments, and provider routing.
+
+**AI-generated:** discovery brief, gap analysis, quality rationale, scope, assumptions, exclusions, deliverables, risks, milestones, and draft contractual language.
+
+## Validation and Quality Controls
+
+Current controls include an independent validation stage, quality scoring, rejection of contradictory scope, blocking of drafting when validation fails, structured output, JSON repair, and manual review.
+
+## Security and Data Handling
+
+> **Security note:** Do not enter production or long-lived API credentials into the public browser demonstration.
+
+Use environment variables for CLI credentials. Do not submit confidential customer notes, pricing, personal data, regulated information, or proprietary designs. Browser local storage is not an enterprise secrets-management solution.
+
+## Testing
+
+Current validation covers provider workflow, gate behavior, structured rendering, CLI arguments, Markdown/DOCX generation, sample scenarios, and graceful optional-dependency behavior. Production use requires unit, integration, schema, clause, prompt-regression, document-diff, and security tests.
+
+## Limitations
+
+Generated SOWs are drafts, not executable contracts. Effort, schedule, pricing, responsibilities, assumptions, and acceptance criteria remain illustrative until independently validated. The tool does not replace discovery, architecture review, estimating, legal review, or customer approval.
+
+## Disclaimer
+
+This project is provided for demonstration and educational purposes and does not constitute legal, contractual, commercial, financial, architecture, or delivery advice.
+
+---
+
 ## Author
 
 **Daniel Mazzini**
@@ -311,7 +345,3 @@ Principal Architect & Senior TPM · Cloud & Infrastructure · Telco · Applied A
 - Portfolio: [danvzla.github.io/ai-sow-orchestrator](https://danvzla.github.io/ai-sow-orchestrator)
 
 ---
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
