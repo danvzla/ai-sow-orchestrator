@@ -1,6 +1,6 @@
 # AI SOW Orchestrator
 
-> **3-Agent AI System** — Turns raw discovery notes into a complete, validated Statement of Work in seconds.
+> **3-Agent AI System** — Turns raw discovery notes into a structured, validation-gated Statement of Work draft.
 
 **Live demo →** [danvzla.github.io/ai-sow-orchestrator](https://danvzla.github.io/ai-sow-orchestrator)
 
@@ -218,7 +218,7 @@ After 1–2 minutes:
 https://YOUR_USERNAME.github.io/ai-sow-orchestrator
 ```
 
-> **API keys** are stored in your browser's `localStorage` only — they are never sent anywhere except directly to Anthropic or OpenAI's API endpoints.
+> **Security note:** Browser `localStorage` is not an enterprise secrets-management solution. Use only temporary test credentials in the public demo; Demo Mode requires no key.
 
 ---
 
@@ -247,7 +247,7 @@ ai-sow-orchestrator/
 - Pure HTML · CSS · JavaScript — no framework, no build step
 - Three provider modes: Demo / Claude API / OpenAI API
 - 4 independently scrollable output tabs (Pipeline · Brief · Validation · SOW)
-- API keys stored in `localStorage`, never transmitted to any server
+- API keys stored in browser `localStorage` for test convenience; not recommended for production use
 - Works offline in Demo Mode
 
 ### Python CLI (sow_generator.py)
@@ -301,6 +301,8 @@ openai >= 1.40.0         # only if using --provider openai
 
 ---
 
+---
+
 ## Architecture and Governance
 
 The solution separates discovery analysis, scope validation, drafting, and human approval. Agent 3 runs only after the validator returns an approved status. The resulting SOW is a draft for commercial, legal, delivery, technical, and customer review.
@@ -345,3 +347,7 @@ Principal Architect & Senior TPM · Cloud & Infrastructure · Telco · Applied A
 - Portfolio: [danvzla.github.io/ai-sow-orchestrator](https://danvzla.github.io/ai-sow-orchestrator)
 
 ---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
