@@ -346,8 +346,3 @@ Principal Architect & Senior TPM · Cloud & Infrastructure · Telco · Applied A
 - GitHub: [github.com/danvzla](https://github.com/danvzla)
 - Portfolio: [danvzla.github.io/ai-sow-orchestrator](https://danvzla.github.io/ai-sow-orchestrator)
 
----
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
